@@ -1,0 +1,61 @@
+.form_350 {
+    width: 350px;
+    margin: auto;
+}
+
+.H_ib_body{
+    background: #123e3ec2!important;
+    font-size: 14px!important;
+    line-height: 16px!important;
+}
+.H_ib_content{
+    padding: 0px 15px!important;
+    margin: 0!important;
+    min-width: 200px!important;
+}
+
+.profile_imge {
+    width: 50px;
+    height: 50px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+
+    margin: 10px;
+    float: left;
+}
+
+.profile_inf span{
+    margin-right: 3px;
+}
+.profile_inf b {
+    color: #fff;
+}
+.profile_inf{
+    margin-top: 15px;
+    display: inline-block;
+    color: #ced6de;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 155px;
+    float: right;
+}
+.round-border{
+    border-radius: 50%;
+}
+.rounded-border{
+    border-radius: 10%;
+}
+.scroll-view {
+    width: 230px!important;
+    position: fixed!important;
+}
+.nav-md .container.body .right_col {
+    margin-left: 230px!important;
+}
+@media (max-width: 991px) {
+    .nav-md .container.body .col-md-3.left_col {
+        display: block!important;
+    }
+}

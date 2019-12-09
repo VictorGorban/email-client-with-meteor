@@ -1,0 +1,66 @@
+# Meteor packages used by this project, one per line.
+# Check this file (and the other files in this directory) into your repository.
+#
+# 'meteor add' and 'meteor remove' will edit this file for you,
+# but you can also edit it by hand.
+modules@0.14.0
+meteor-base@1.4.0
+mobile-experience@1.0.5       # Packages for a great mobile UX
+mongo@1.7.0
+blaze-html-templates@1.0.4 # Compile .html files into Meteor Blaze views
+reactive-var            # Reactive variable for tracker
+tracker@1.2.0
+
+standard-minifier-css@1.5.4   # CSS minifier run for production mode
+standard-minifier-js@2.5.0    # JS minifier run for production mode
+es5-shim@4.8.0
+ecmascript@0.13.0
+shell-server@0.4.0            # Server-side component of the `meteor shell` command
+
+
+check@1.3.1
+ejson@1.1.0
+less@2.7.12
+random@1.1.0
+rate-limit@1.0.9
+yasaricli:slugify
+kadira:blaze-layout
+kadira:flow-router
+momentjs:moment
+
+percolate:synced-cron
+accounts-base@1.4.5
+accounts-ui@1.3.1
+accounts-password@1.5.1
+service-configuration@1.0.11
+
+session@1.2.0
+http@1.4.2
+
+email@1.2.3
+
+patrickml:swal
+raix:handlebar-helpers
+
+ostrio:files
+
+
+meteorhacks:ssr
+
+coffeescript-compiler
+coffeescript
+
+reywood:publish-composite
+bigdsk:inputmask
+#useful:wizard
+nimble:restivus
+d3js:d3
+#thundefined:accounts-vk
+ieverx:echarts
+ksrv:datatables-bootstrap3
+simple:rest
+
+matb33:collection-hooks
+
+aldeed:collection2
+aldeed:autoform

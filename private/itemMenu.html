@@ -1,0 +1,89 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>EMAIL-CLIENT</title>
+    <meta name="viewport" content="width=device-width, maximum-scale=1, user-scalable=no">
+
+    <!--<link rel="icon" href="/img/fav.ico" type="image/x-icon">-->
+    <!-- Stylesheets-->
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans:400,700%7CRubik:300,300i,500,700,900%7CMontserrat:400,700">
+    <link rel="stylesheet" href="/css/fonts.css">
+    <!--<link rel="stylesheet" href="/css/bootstrap.css">-->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/patch.css">
+    <!--[if lt IE 10]-->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.1.5/css/uikit.min.css" />
+
+    <!-- UIkit JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.1.5/js/uikit.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.1.5/js/uikit-icons.min.js"></script>
+
+</head>
+
+<body id="__blaze-root">
+
+    <section class="uk-section uk-container uk-container-center" >
+        <div class="uk-width-large uk-margin-auto">
+
+            {{#if bracelet.name}}
+            <div class="uk-card uk-card-default">
+                <div class="uk-card-header">
+                    <h3 class="uk-card-title uk-margin-remove-bottom">{{bracelet.name}}</h3>
+                    <p class="uk-text-meta  uk-margin-remove-top"><time datetime="2016-04-01T19:00">Name</time></p>
+                </div>
+            </div>
+            {{/if}}
+
+            {{#if bracelet.job}}
+            <div class="uk-card uk-card-default">
+                <div class="uk-card-header">
+                    <h3 class="uk-card-title  uk-margin-remove-bottom">{{bracelet.job}}</h3>
+                    <p class="uk-text-meta  uk-margin-remove-top"><time datetime="2016-04-01T19:00">Job</time></p>
+                </div>
+            </div>
+            {{/if}}
+
+            {{#if bracelet.contact}}
+            <div class="uk-card uk-card-default">
+                <div class="uk-card-header">
+                    <h3 class="uk-card-title  uk-margin-remove-bottom">{{bracelet.contact}}</h3>
+                    <p class="uk-text-meta  uk-margin-remove-top"><time datetime="2016-04-01T19:00">Contact</time></p>
+                </div>
+            </div>
+            {{/if}}
+
+            {{#if (company bracelet._id)}}
+            <div class="uk-card uk-card-default">
+                <div class="uk-card-header">
+                    <h3 class="uk-card-title  uk-margin-remove-bottom">{{company bracelet._id}}</h3>
+                    <p class="uk-text-meta  uk-margin-remove-top"><time datetime="2016-04-01T19:00">Company</time></p>
+                </div>
+            </div>
+            {{/if}}
+
+            {{#if (companyPhone bracelet._id)}}
+            <div class="uk-card uk-card-default">
+                <div class="uk-card-header">
+                    <h3 class="uk-card-title  uk-margin-remove-bottom">{{companyPhone bracelet._id}}</h3>
+                    <p class="uk-text-meta  uk-margin-remove-top"><time datetime="2016-04-01T19:00">Company phone</time></p>
+                </div>
+            </div>
+            {{/if}}
+
+            {{#if (companyContact bracelet._id)}}
+            <div class="uk-card uk-card-default">
+                <div class="uk-card-header">
+                    <h3 class="uk-card-title  uk-margin-remove-bottom">{{companyContact bracelet._id}}</h3>
+                    <p class="uk-text-meta  uk-margin-remove-top"><time datetime="2016-04-01T19:00">Company contact</time></p>
+                </div>
+            </div>
+            {{/if}}
+        </div>
+    </section>
+</body>
+
+</html>

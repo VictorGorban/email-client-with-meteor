@@ -1,0 +1,2 @@
+import './updateUserImage'
+import './updateUserPersonal'
