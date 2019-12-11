@@ -1,2 +1,0 @@
-import './createNewProduct'
-import './importProductItemsFromFile'

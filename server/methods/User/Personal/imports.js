@@ -1,2 +1,0 @@
-import './updateUserImage'
-import './updateUserPersonal'

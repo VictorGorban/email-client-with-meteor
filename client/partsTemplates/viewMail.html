@@ -1,0 +1,74 @@
+<template name="viewMail">
+  <div class="inbox-head">
+    <h3>View Mail</h3>
+  </div>
+  <div class="inbox-body" style="overflow-y: auto; overflow-x: auto; max-height: 100vh; padding-bottom: 100px;">
+    {{#with thisMail}}
+      <div class="heading-inbox row">
+        <div class="col-md-8">
+        </div>
+        <div class="col-md-4 text-right">
+          <p class="date"> {{date thisMail}}</p>
+        </div>
+        <div class="col-md-12">
+          <h4> {{subject}}</h4>
+        </div>
+      </div>
+      <div class="sender-info">
+        <div class="row">
+          <div class="col-md-12">
+            <!--            <img alt="" src="img/mail-avatar.jpg">-->
+            <strong>{{from}}</strong>
+            <!--            <span>[mosaddek73@gmail.com]</span>-->
+            to
+            <strong>{{to}}</strong>
+            <!--            <a class="sender-dropdown " href="javascript:;">-->
+            <!--              <i class="fa fa-chevron-down"></i>-->
+            <!--            </a>-->
+          </div>
+        </div>
+      </div>
+      <div class="view-mail">
+        {{{html}}}
+      </div>
+      {{#if hasAttachment thisMail}}
+        <div class="attachment-mail">
+          <p>
+            <span style="font-size: larger"><i class="fa fa-paperclip"></i> {{attachmentsCount thisMail}} attachments </span>
+<!--            <br>-->
+            {{#each attachment in thisMail.attachments}}
+              <br>
+              <a href="#"><i class="fa fa-paperclip"></i>{{attachment.filename}}</a>
+            {{/each}}
+          </p>
+        </div>
+      {{/if}}
+      <div class="">
+        <button title="Save this mail" class="btn btn-primary">
+          <i class="fa fa-save"></i> Save
+        </button>
+        <button href="#decipherModal" data-toggle="modal" title="Decipher this mail" class="btn  btn-warning">
+          <i class="fa fa-unlock"></i> Decipher
+        </button>
+        <div class="dropdown dropup inline-block">
+          <button class="btn btn-default dropdown-toggle" style="background: #e7be79b8" type="button" id="moveToFolderDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            <i class="fa fa-folder"></i> Move to
+            <span class="caret"></span>
+          </button>
+          <ul class="nav nav-pills nav-stacked labels-info dropdown-menu" aria-labelledby="moveToFolderDropdown">
+            <li><a href="#">Folder 1</a></li>
+            <li><a href="#">Folder 2</a></li>
+            <li><a href="#">Folder 3</a></li>
+          </ul>
+        </div>
+
+        <button title="Delete this mail" class="btn  btn-danger">
+          <i class="fa fa-trash"></i> Delete
+        </button>
+      </div>
+    {{else}}
+      <h2>no email selected</h2>
+    {{/with}}
+  </div>
+
+</template>

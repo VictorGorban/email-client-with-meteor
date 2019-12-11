@@ -1,0 +1,28 @@
+<template name="mailsList">
+
+  <div class="inbox-head">
+    <h3>{{thisBox}}</h3>
+  </div>
+  <div class="inbox-body" style="overflow-y: auto; max-height: 100vh; padding-bottom: 100px;">
+  {{#if Template.subscriptionsReady}}
+    <table class="table table-inbox table-hover">
+      <tbody>
+
+      {{#each email in emails}}
+      <tr data-id="{{email._id}}" class="email-row {{unread email}}">
+        <td class="view-message dont-show">{{from email}}</td>
+        <td class="view-message">{{subject email}}</td>
+        <td class="view-message inbox-small-cells">{{#if hasAttachment email}}<i class="fa fa-paperclip"></i>{{/if}} </td>
+        <td class="view-message text-right">{{date email}}</td>
+      </tr>
+      {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    {{> loader}}
+  {{/if}}
+
+  </div>
+
+
+</template>

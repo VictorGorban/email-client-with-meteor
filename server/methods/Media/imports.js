@@ -1,2 +1,0 @@
-import './removeMedia'
-import './setMediaItem'

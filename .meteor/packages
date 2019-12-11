@@ -25,7 +25,6 @@ random@1.1.0
 rate-limit@1.0.9
 yasaricli:slugify
 kadira:blaze-layout
-kadira:flow-router
 momentjs:moment
 
 percolate:synced-cron
@@ -64,3 +63,4 @@ matb33:collection-hooks
 
 aldeed:collection2
 aldeed:autoform
+froala:editor

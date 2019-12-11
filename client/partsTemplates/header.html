@@ -8,7 +8,7 @@
       <ul class="nav pull-right top-menu">
         <!-- user login dropdown start-->
         <li>
-          <button class="btn btn-primary btn-sync"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+          <button style="padding: 7.5px 12px" id="syncButton" class="btn btn-primary btn-sync"><i class="fa fa-refresh {{#if $.Session.equals 'isSyncing' true}} fa-spin {{/if}}" aria-hidden="true"></i></button>
         </li>
         <li class="dropdown">
           <a data-toggle="dropdown" class="dropdown-toggle" href="#">

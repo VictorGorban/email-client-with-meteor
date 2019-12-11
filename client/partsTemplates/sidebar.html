@@ -1,4 +1,23 @@
 <template name="sidebar">
-  hello sidebar
+
+  <div class="inbox-body">
+    <a class="btn btn-compose" style="" data-toggle="modal" href="#composeModal">
+      Compose
+    </a>
+
+
+  </div>
+  <ul class="inbox-nav inbox-divider">
+    {{#each boxName in boxesNames}}
+      <li class="{{#if $.Session.equals 'thisBox' boxName}}active{{/if}}">
+        <a href="" class="email-box">{{boxName}}</a>
+      </li>
+    {{else}}
+      <li>
+        <a href="#"> No boxes</a>
+      </li>
+    {{/each}}
+  </ul>
+
 
 </template>

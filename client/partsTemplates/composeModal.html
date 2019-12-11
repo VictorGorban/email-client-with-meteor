@@ -1,0 +1,55 @@
+<template name="composeModal">
+  <!-- Modal -->
+  <div class="modal fade" id="composeModal" tabindex="-1" role="dialog" aria-labelledby="composeModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 90%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+          <h4 class="modal-title">Compose</h4>
+        </div>
+        <div class="modal-body">
+          <form id="composeForm" class="form-horizontal" role="form">
+            <div class="form-group">
+              <label class="col-lg-2 control-label">To</label>
+              <div class="col-lg-10">
+                <input type="text" class="form-control" id="composeTo" placeholder="">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-lg-2 control-label">Subject</label>
+              <div class="col-lg-10">
+                <input type="text" class="form-control" id="composeSubject" placeholder="">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-lg-2 control-label">Message</label>
+              <div style="width: 95%; margin: 3em auto 1em; ">
+                {{> froala}}
+              </div>
+              <div id="renderedContent" style="width: 95%; margin: 1em auto;">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-md-10">
+                <ul id="composeFilesList" class="">
+                  <li style="margin-top: 5px;"> <input type="file" hidden multiple class="btn btn-white compose-attachment"></li>
+                </ul>
+                <button type="button" id="addAttachment" class="btn btn-default">
+                  <i class="fa fa-plus fa fa-white"></i><span>Attachment</span>
+                </button>
+              </div>
+            </div>
+
+            <button href="#cypherModal" data-toggle="modal" title="Cypher this mail" class="btn  btn-danger">
+              <i class="fa fa-lock"></i> Cypher
+            </button>
+            <button type="submit" id="composeSend" class="btn btn-send" style="font-size: larger; padding: 10px 20px;">Send</button>
+
+
+          </form>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+</template>
