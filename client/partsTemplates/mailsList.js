@@ -73,11 +73,21 @@ function loadThisMailAttachments() {
 
 Template.mailsList.onCreated(function () {
 
-  let accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+  let accounts;
+  try {
+    accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+  }catch (e) {
+    accounts = [];
+  }
   // console.log(accountsList);
   Session.set('accounts', accounts);
 
-  let thisAccount = JSON.parse(localStorage.getItem('thisAccount') || '{}');
+  let thisAccount;
+  try {
+    thisAccount = JSON.parse(localStorage.getItem('thisAccount') || '{}');
+  }catch (e) {
+    thisAccount = {};
+  }
   // console.log(thisAccount);
   Session.set('thisAccount', thisAccount);
 

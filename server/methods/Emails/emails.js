@@ -1,17 +1,5 @@
 function retrieveEmails(boxName, options, limit) {
-  // boxName = boxName.toUpperCase();
-  // console.log(boxName);
-  // console.log('in retrieveEmails from ' + boxName);
-  // console.log(options);
   // return;
-  /*if (!options || Object.entries(options).length === 0) {
-   options = {
-   user: 'victorgorban2@ya.ru',
-   password: '1999gorban',
-   host: 'imap.yandex.ru',
-   port: 993,
-   }
-   }*/
 
   // console.log(options);
 
@@ -49,6 +37,7 @@ function retrieveEmails(boxName, options, limit) {
               if (total == 0) {
                 Emails.remove({
                                 box: boxName,
+                                user: options.user,
                               });
                 resolve('no emails');
                 return;
@@ -82,7 +71,7 @@ function retrieveEmails(boxName, options, limit) {
                   let mailObj = {
                     seqno,
                     box: boxName,
-                    user: options.user
+                    user: options.user,
                   };
 
                   var prefix = '(#' + seqno + ') ';
@@ -116,7 +105,7 @@ function retrieveEmails(boxName, options, limit) {
 
                           mailObj = {...mailObj, ...options};
 
-                          console.log('mailObj.user is '+ mailObj.user);
+                          // console.log('mailObj.user is '+ mailObj.user);
                           // console.log('lets upsert');
                           Emails.upsert({
                                           seqno: mailObj.seqno,
@@ -196,15 +185,13 @@ Meteor.method('loadEmail', (boxName, options, seqNumber) => {
   // boxName = boxName.toUpperCase();
   // console.log(boxName);
   console.log(`in loadEmail from ${boxName} with seq #${seqNumber}`);
-  if (!options || Object.entries(options).length === 0) {
-    options = {
-      user: 'victorgorban2@ya.ru',
-      password: '1999gorban',
-      host: 'imap.yandex.ru',
-      port: 993,
-    }
-  }
 
+  options = {
+    user: options.user,
+    password: options.password,
+    host: options.imap.address,
+    port: options.imap.port,
+  };
   // console.log(options);
 
   var bound = Meteor.bindEnvironment(function (callback) {
@@ -245,6 +232,7 @@ Meteor.method('loadEmail', (boxName, options, seqNumber) => {
                   let mailObj = {
                     seqno,
                     box: boxName,
+                    user: options.user,
                   };
 
                   msg.on('body', function (stream, info) {
@@ -274,6 +262,7 @@ Meteor.method('loadEmail', (boxName, options, seqNumber) => {
                           Emails.upsert({
                                           seqno: mailObj.seqno,
                                           box: mailObj.box,
+                                          user: mailObj.user,
                                         }, {$set: mailObj}); // update or insert. Решает проблему с синхронизацией входящих писем. Хотя не удаляет уже удаленные.
                           // console.log(mailObj); // иначе никак, из-за парсера end получается раньше чем заканчивается парсинг.
                           // where to return??? Need to wrap into function, then return Emails.find
@@ -530,6 +519,7 @@ Meteor.method('sendEmail', function (options, email) {
  });*/
 
 Meteor.method('getBoxes', (options = null) => {
+  // return;
   console.log('in getBoxes');
   // options = {
   //   user: 'victorgorban2@ya.ru',
@@ -546,13 +536,11 @@ Meteor.method('getBoxes', (options = null) => {
 
   // options.password = '2354325';
 
-  // console.log(options);
+  console.log(options);
   // return;
 
 
-  var Imap = require('imap'),
-      inspect = require('util').inspect;
-  const parser = require('mailparser').simpleParser;
+  var Imap = require('imap');
 
   var imap = new Imap({
                         ...options,
@@ -562,12 +550,22 @@ Meteor.method('getBoxes', (options = null) => {
   // console.log('before return new Promise');
   return new Promise((resolve, reject) => {
     imap.once('ready', function () {
-      // console.log('imap.once(ready');
+      console.log('imap.once(ready');
 
       imap.getBoxes('', (err, boxes) => {
         if (err) {
           reject(err.textCode);
         }
+
+
+        console.log(Object.getOwnPropertyNames(boxes));
+        for (let key of Object.getOwnPropertyNames(boxes))
+        {
+          delete boxes[key].children;
+          // console.log(boxes[key]);
+        }
+
+        // reject('wait a bit');
         resolve(boxes); // if there is a filter, than we have circular in children
       })
     });

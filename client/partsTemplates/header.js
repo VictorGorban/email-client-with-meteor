@@ -47,6 +47,21 @@ Template.header.events({
                          'click #syncButton': function () {
                            syncEmails();
                          },
+                         'click #logout': function () {
+                           let thisAccount = Session.get('thisAccount');
+                           let accounts = Session.get('accounts');
+                           for(var i in accounts){
+                             if(accounts[i]==thisAccount){
+                               accounts.splice(i,1);
+                               break;
+                             }
+                           }
+                           Session.set('thisAccount', accounts[accounts.length-1]);
+                           localStorage.setItem('thisAccount', JSON.stringify(accounts[accounts.length-1]));
+                           Session.set('accounts', accounts);
+                           localStorage.setItem('accounts', JSON.stringify(accounts));
+
+                         },
 
                          'click .account-link': function () {
                            let thisAccount = Session.get('thisAccount');
