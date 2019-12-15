@@ -7,68 +7,56 @@
           <h4 class="modal-title">Adding email account</h4>
         </div>
         <div class="modal-body row" style="padding-bottom: 50px">
-          <form class="form-horizontal col-md-12" role="form">
+          <form id="addAccountForm" class="form-horizontal col-md-12" role="form">
+            <div class="form-group">
+              <label class="col-lg-2 control-label">Email address:</label>
+              <div class="col-lg-10">
+                <input type="text" required class="form-control" id="addAccountUser" placeholder="" value="victorgorban2@ya.ru">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-lg-2 control-label">Password:</label>
+              <div class="col-lg-10">
+                <input type="text" required class="form-control" id="addAccountPassword" placeholder="" value="1999gorban">
+              </div>
+            </div>
+
             <h3 class="col-md-10">IMAP settings</h3>
             <div class="container col-md-10 col-sm-offset-1">
               <div class="form-group">
                 <label class="col-lg-2 control-label">Server address:</label>
                 <div class="col-lg-10">
-                  <input type="text" class="form-control" id="addAccountImapAddress" placeholder="imap.yandex.ru">
+                  <input type="text" required class="form-control" id="addAccountImapAddress" placeholder="imap.yandex.ru" value="imap.yandex.ru">
                 </div>
               </div>
               <div class="form-group">
                 <label class="col-lg-2 control-label">Port:</label>
                 <div class="col-lg-10">
-                  <input type="text" class="form-control" id="addAccountImapPort" placeholder="993">
+                  <input type="text" required class="form-control" id="addAccountImapPort" placeholder="993" value="993">
                 </div>
               </div>
-
-              <div class="form-group">
-                <label class="col-lg-2 control-label">Account:</label>
-                <div class="col-lg-10">
-                  <input type="text" class="form-control" id="addAccountImapAccount" placeholder="">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-lg-2 control-label">Password:</label>
-                <div class="col-lg-10">
-                  <input type="text" class="form-control" id="addAccountImapPassword" placeholder="">
-                </div>
-              </div>
-
             </div>
             <h3 class="col-md-10">SMTP settings</h3>
             <div class="container col-md-10 col-sm-offset-1">
               <div class="form-group">
                 <label class="col-lg-2 control-label">Server address:</label>
                 <div class="col-lg-10">
-                  <input type="text" class="form-control" id="addAccountSmtpAddress" placeholder="smtp.yandex.ru">
+                  <input type="text" required class="form-control" id="addAccountSmtpAddress" placeholder="smtp.yandex.ru" value="smtp.yandex.ru">
                 </div>
               </div>
               <div class="form-group">
                 <label class="col-lg-2 control-label">Port:</label>
                 <div class="col-lg-10">
-                  <input type="text" class="form-control" id="addAccountSmtpPort" placeholder="465">
+                  <input type="text" required class="form-control" id="addAccountSmtpPort" placeholder="465" value="465">
                 </div>
               </div>
-
-              <div class="form-group">
-                <label class="col-lg-2 control-label">Account:</label>
-                <div class="col-lg-10">
-                  <input type="text" class="form-control" id="addAccountSmtpAccount" placeholder="">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-lg-2 control-label">Password:</label>
-                <div class="col-lg-10">
-                  <input type="text" class="form-control" id="addAccountSmtpPassword" placeholder="">
-                </div>
-              </div>
-
             </div>
-
+            <div class="container col-md-10">
+              <button type="submit" id="addAccountSave" class="btn btn-send" style="font-size: larger; padding: 10px 20px;">
+                Save
+              </button>
+            </div>
           </form>
         </div>
       </div><!-- /.modal-content -->

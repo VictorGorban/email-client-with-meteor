@@ -30,6 +30,7 @@
     "moment": "^2.24.0",
     "moment-range": "^4.0.2",
     "node-xlsx2json": "^0.9.3",
+    "nodemailer": "^6.4.2",
     "qr-code-with-logo": "^1.1.0",
     "qrcode": "^1.4.4",
     "simpl-schema": "^1.5.6",

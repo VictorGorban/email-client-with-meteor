@@ -1,28 +1,17 @@
-function getBoxes(options) {
-  var Imap = require('imap');
-
-  var imap = new Imap({
-                        user: 'victorgorban2@ya.ru',
-                        password: '1999gorban',
-                        host: 'imap.yandex.ru',
-                        port: 993,
-                        tls: true,
-                      });
-
-}
-
 function retrieveEmails(boxName, options, limit) {
   // boxName = boxName.toUpperCase();
   // console.log(boxName);
   // console.log('in retrieveEmails from ' + boxName);
-  if (!options || Object.entries(options).length === 0) {
-    options = {
-      user: 'victorgorban2@ya.ru',
-      password: '1999gorban',
-      host: 'imap.yandex.ru',
-      port: 993,
-    }
-  }
+  // console.log(options);
+  // return;
+  /*if (!options || Object.entries(options).length === 0) {
+   options = {
+   user: 'victorgorban2@ya.ru',
+   password: '1999gorban',
+   host: 'imap.yandex.ru',
+   port: 993,
+   }
+   }*/
 
   // console.log(options);
 
@@ -52,7 +41,7 @@ function retrieveEmails(boxName, options, limit) {
                 // throw err;
               }
 
-              console.log(box.messages.total + ' messages found!');
+              // console.log(box.messages.total + ' messages found!');
               let total = box.messages.total;
               // 1:* - Retrieve all messages
               // 3:5 - Retrieve messages #3,4,5
@@ -69,16 +58,19 @@ function retrieveEmails(boxName, options, limit) {
               }
               // console.log('search by ' + `${total - limit}:${total}`); // все что больше -удалить, все что меньше - удалить. Остальное upsert.
 
+              console.log('user: ' + options.user);
               Emails.remove({
                               box: boxName,
                               seqno: {$gt: total},
+                              user: options.user,
                             });
               Emails.remove({
                               box: boxName,
                               seqno: {$lt: total - limit},
+                              user: options.user,
                             });
 
-              console.log('extras removed');
+              // console.log('extras removed');
 
               var f = imap.seq.fetch(`${total - limit}:${total}`, { // seq работает, просто fetch нет. Заебись.
                 bodies: '',
@@ -90,6 +82,7 @@ function retrieveEmails(boxName, options, limit) {
                   let mailObj = {
                     seqno,
                     box: boxName,
+                    user: options.user
                   };
 
                   var prefix = '(#' + seqno + ') ';
@@ -123,10 +116,12 @@ function retrieveEmails(boxName, options, limit) {
 
                           mailObj = {...mailObj, ...options};
 
+                          console.log('mailObj.user is '+ mailObj.user);
                           // console.log('lets upsert');
                           Emails.upsert({
                                           seqno: mailObj.seqno,
                                           box: mailObj.box,
+                                          user: mailObj.user,
                                         }, {$set: mailObj}); // update or insert. Решает проблему с синхронизацией входящих писем. Хотя не удаляет уже удаленные.
                           // console.log(mailObj); // иначе никак, из-за парсера end получается раньше чем заканчивается парсинг.
                           // where to return??? Need to wrap into function, then return Emails.find
@@ -347,7 +342,7 @@ Meteor.method('moveEmailToOtherBox', (boxName, targetBoxName, options, seqNumber
     }
   }
 
-  console.log(options);
+  // console.log(options);
 
   var bound = Meteor.bindEnvironment(function (callback) {
     return callback();
@@ -425,7 +420,7 @@ Meteor.method('deleteEmail', (boxName, options, seqNumber) => {
     }
   }
 
-  console.log(options);
+  // console.log(options);
 
   var bound = Meteor.bindEnvironment(function (callback) {
     return callback();
@@ -482,6 +477,12 @@ Meteor.method('deleteEmail', (boxName, options, seqNumber) => {
 });
 
 Meteor.method('syncBox', async (boxName = '', options = null, limit = 30) => {
+  options = {
+    user: options.user,
+    password: options.password,
+    host: options.imap.address,
+    port: options.imap.port,
+  };
   // retrieveEmails(boxName, options, limit);
   // Timeline.remove({}, async () => {
   // await sendOutbox(options);
@@ -492,17 +493,61 @@ Meteor.method('syncBox', async (boxName = '', options = null, limit = 30) => {
   // }); // Мне нужен только сам факт добавления в коллекцию
 });
 
-Meteor.method('getBoxes', (options = null) => {
-  // console.log('in getBoxes');
 
-  if (!options || Object.entries(options).length === 0) {
-    options = {
-      user: 'victorgorban2@ya.ru',
-      password: '1999gorban',
-      host: 'imap.yandex.ru',
-      port: 993,
-    }
-  }
+Meteor.method('sendEmail', function (options, email) {
+
+});
+
+/*Meteor.method('tryConnectSmtp', function (options) {
+ if (!options.host) {
+ options.host = options.address;
+ }
+
+ if (!options.pass) {
+ options.pass = options.password;
+ }
+ const SMTPConnection = require('nodemailer/lib/smtp-connection');
+
+ return new Promise((resolve, reject) => {
+ let connection = new SMTPConnection({
+ ...options,
+ secure: true,
+ });
+
+ console.log('before login');
+ connection.login(options, (err, res) => {
+ if (err) {
+ console.log(err);
+ reject(err);
+ }
+ });
+ });
+
+ });
+
+ Meteor.method('tryConnectImap', function (options) {
+
+ });*/
+
+Meteor.method('getBoxes', (options = null) => {
+  console.log('in getBoxes');
+  // options = {
+  //   user: 'victorgorban2@ya.ru',
+  //   password: '1999gorban',
+  //   host: 'imap.yandex.ru',
+  //   port: 993,
+  // };
+  options = {
+    user: options.user,
+    password: options.password,
+    host: options.imap.address,
+    port: options.imap.port,
+  };
+
+  // options.password = '2354325';
+
+  // console.log(options);
+  // return;
 
 
   var Imap = require('imap'),
@@ -521,11 +566,15 @@ Meteor.method('getBoxes', (options = null) => {
 
       imap.getBoxes('', (err, boxes) => {
         if (err) {
-          reject(err);
+          reject(err.textCode);
         }
         resolve(boxes); // if there is a filter, than we have circular in children
       })
-    })
+    });
+
+    imap.once('error', function (err) {
+      reject(err.textCode);
+    });
 
     imap.connect();
   });

@@ -80,7 +80,9 @@ Template.header.helpers({
                             return Session.get('thisAccount');
                           },
                           accounts: function () {
-                            return Session.get('accounts');
+                            let accounts = Session.get('accounts');
+                            console.log(accounts);
+                            return accounts;
                           },
                           hcondition: function () {
                             // console.log(Template.instance());

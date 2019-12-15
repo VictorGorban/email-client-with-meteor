@@ -1,5 +1,17 @@
 import '../commonFunctions'
 
+function showError(message) {
+  toastr.error(message);
+}
+
+function showSuccess(message) {
+  toastr.success(message);
+}
+
+function showInfo(message) {
+  toastr.success(message);
+}
+
 
 Template.composeModal.onCreated(() => {
   this.fileIndex = 0;

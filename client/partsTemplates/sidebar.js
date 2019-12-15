@@ -19,14 +19,23 @@ function syncEmailsAndBoxes() {
     return;
   }
 
+  let thisAccount = Session.get('thisAccount');
+  if (!thisAccount || Object.getOwnPropertyNames(thisAccount).length == 0) {
+    return;
+  }
+
   Session.set('isSyncing', true);
 
   function doneSyncing() {
     Session.set('isSyncing', false);
   }
 
-  let thisAccount = Session.get('thisAccount');
   Meteor.call('getBoxes', thisAccount, (err, boxes) => {
+    if(err){
+      showError(err);
+      return;
+    }
+    console.log('in getBoxes callback')
     Session.set('boxes', boxes);
     localStorage.setItem('boxes', JSON.stringify(boxes));
   });
@@ -34,6 +43,7 @@ function syncEmailsAndBoxes() {
 
   Meteor.call('syncBox', Session.get('thisBox'), Session.get('thisAccount'), (err, res) => {
     doneSyncing();
+    console.log('syncBox finished');
     if (err) {
       showError(err);
     }
@@ -42,9 +52,7 @@ function syncEmailsAndBoxes() {
     }
   });
 
-  console.log('sidebar.js. before setTimeout(doneSyncing, 5000);');
   setTimeout(doneSyncing, 5000); // Хрен его знает, почему imap не завершает fetch из trash
-
 }
 
 

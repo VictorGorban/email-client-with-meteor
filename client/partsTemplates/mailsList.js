@@ -17,14 +17,28 @@ function syncEmailsAndBoxes() {
     return;
   }
 
+  let thisAccount = Session.get('thisAccount');
+  if (!thisAccount || Object.getOwnPropertyNames(thisAccount).length == 0) {
+    return;
+  }
+
   Session.set('isSyncing', true);
 
   function doneSyncing() {
     Session.set('isSyncing', false);
   }
 
-  let thisAccount = localStorage.getItem('thisAccount');
   Meteor.call('getBoxes', thisAccount, (err, boxes) => {
+    if (err) {
+      if (err.error=='500') {
+        showError('cannot retrieve data via IMAP. Check your credentials');
+        return;
+      }
+      showError(err);
+      return;
+    };
+
+    console.log('in getBoxes callback');
     Session.set('boxes', boxes);
     localStorage.setItem('boxes', JSON.stringify(boxes));
   });
@@ -34,8 +48,13 @@ function syncEmailsAndBoxes() {
     doneSyncing();
     console.log('syncBox finished');
     if (err) {
+      if (err.error=='500') {
+        showError('cannot retrieve data via IMAP. Check your credentials');
+        return;
+      }
       showError(err);
-    }
+      return;
+    };
     if (res) {
       showSuccess(res)
     }
