@@ -1,6 +1,8 @@
 // import '../commonFunctions'
 
 
+import {Meteor} from 'meteor/meteor';
+
 function showError(message) {
   toastr.error(message);
 }
@@ -13,27 +15,57 @@ function showInfo(message) {
   toastr.success(message);
 }
 
-function syncEmails() {
+function syncEmailsAndBoxes() {
   if (Session.equals('isSyncing', true)) {
     return;
   }
+
+  let thisAccount = Session.get('thisAccount');
+  if (!thisAccount || Object.getOwnPropertyNames(thisAccount).length == 0) {
+    return;
+  }
+
   Session.set('isSyncing', true);
 
   function doneSyncing() {
     Session.set('isSyncing', false);
   }
 
+  Meteor.call('getBoxes', thisAccount, (err, boxes) => {
+    if (err) {
+      if (err.error == '500') {
+        showError('cannot retrieve data via IMAP. Check your credentials');
+        return;
+      }
+      showError(err);
+      return;
+    }
+    ;
+
+    console.log('in getBoxes callback');
+    Session.set('boxes', boxes);
+    localStorage.setItem('boxes', JSON.stringify(boxes));
+  });
+
+
   Meteor.call('syncBox', Session.get('thisBox'), Session.get('thisAccount'), (err, res) => {
     doneSyncing();
+    console.log('syncBox finished');
     if (err) {
+      if (err.error == '500') {
+        showError('cannot retrieve data via IMAP. Check your credentials');
+        return;
+      }
       showError(err);
+      return;
     }
+    ;
     if (res) {
       showSuccess(res)
     }
   });
 
-  setTimeout(doneSyncing, 2000);
+  setTimeout(doneSyncing, 5000); // Хрен его знает, почему imap не завершает fetch из trash
 }
 
 
@@ -45,25 +77,45 @@ Template.header.onCreated(function () {
 //  this.fetchComp = new ReactiveVar []
 Template.header.events({
                          'click #syncButton': function () {
-                           syncEmails();
+                           syncEmailsAndBoxes();
                          },
-                         'click #logout': function () {
+                         'click #logout': function (e, t) {
+                           e.preventDefault();
                            let thisAccount = Session.get('thisAccount');
                            let accounts = Session.get('accounts');
-                           for(var i in accounts){
-                             if(accounts[i]==thisAccount){
-                               accounts.splice(i,1);
+                           for (var i in accounts) {
+                             if (accounts[i].user == thisAccount.user) {
+                               accounts.splice(i, 1);
                                break;
                              }
                            }
-                           Session.set('thisAccount', accounts[accounts.length-1]);
-                           localStorage.setItem('thisAccount', JSON.stringify(accounts[accounts.length-1]));
+                           Session.set('thisAccount', accounts[accounts.length - 1]);
+                           localStorage.setItem('thisAccount', JSON.stringify(accounts[accounts.length - 1]));
                            Session.set('accounts', accounts);
                            localStorage.setItem('accounts', JSON.stringify(accounts));
 
+                           Session.set('thisBox', 'INBOX');
+                           localStorage.setItem('thisBox', 'INBOX');
+                           syncEmailsAndBoxes();
                          },
 
-                         'click .account-link': function () {
+                         'click .account-link': function (e, t) {
+                           e.preventDefault();
+                           let email = e.currentTarget.text.trim();
+                           console.log(email);
+
+
+                           let account = Session.get('accounts').find(e => e.user == email);
+                           if(!account)
+                             return;
+                           Session.set('thisAccount', account);
+                           localStorage.setItem('thisAccount', JSON.stringify(account));
+
+                           syncEmailsAndBoxes();
+                         },
+
+                         'click #accountSettingsButton': function (e, t) {
+                           // e.preventDefault();
                            let thisAccount = Session.get('thisAccount');
                            let account = Session.get('accounts').find(e => e.user == thisAccount.user);
                            if (!account) {
@@ -74,15 +126,15 @@ Template.header.events({
 
                            function updateSettingsModal(account) {
                              $('#settingsUser').val(account.user);
+                             $('#settingsPassword').val(account.password);
 
                              $('#settingsSmtpAddress').val(account.smtp.address);
                              $('#settingsSmtpPort').val(account.smtp.port);
-                             $('#settingsSmtpPassword').val(account.smtp.password);
 
                              $('#settingsImapAddress').val(account.imap.address);
                              $('#settingsImapPort').val(account.imap.port);
-                             $('#settingsImapPassword').val(account.imap.password);
                            }
+
                          },
                        });
 

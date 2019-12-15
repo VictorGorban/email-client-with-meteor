@@ -1,4 +1,5 @@
 import '../commonFunctions'
+import {Meteor} from "meteor/meteor";
 
 function showError(message) {
   toastr.error(message);
@@ -10,6 +11,57 @@ function showSuccess(message) {
 
 function showInfo(message) {
   toastr.success(message);
+}
+
+function syncEmailsAndBoxes() {
+  if (Session.equals('isSyncing', true)) {
+    return;
+  }
+
+  let thisAccount = Session.get('thisAccount');
+  if (!thisAccount || Object.getOwnPropertyNames(thisAccount).length == 0) {
+    return;
+  }
+
+  Session.set('isSyncing', true);
+
+  function doneSyncing() {
+    Session.set('isSyncing', false);
+  }
+
+  Meteor.call('getBoxes', thisAccount, (err, boxes) => {
+    if (err) {
+      if (err.error=='500') {
+        showError('cannot retrieve data via IMAP. Check your credentials');
+        return;
+      }
+      showError(err);
+      return;
+    };
+
+    console.log('in getBoxes callback');
+    Session.set('boxes', boxes);
+    localStorage.setItem('boxes', JSON.stringify(boxes));
+  });
+
+
+  Meteor.call('syncBox', Session.get('thisBox'), Session.get('thisAccount'), (err, res) => {
+    doneSyncing();
+    console.log('syncBox finished');
+    if (err) {
+      if (err.error=='500') {
+        showError('cannot retrieve data via IMAP. Check your credentials');
+        return;
+      }
+      showError(err);
+      return;
+    };
+    if (res) {
+      showSuccess(res)
+    }
+  });
+
+  setTimeout(doneSyncing, 5000); // Хрен его знает, почему imap не завершает fetch из trash
 }
 
 Template.addAccountModal.events({
@@ -34,28 +86,15 @@ Template.addAccountModal.events({
                                     const account = getAccountSettingsFromAddAccountModal();
                                     // console.log(account);
                                     // return;
-                                    let accountSmtp = {
-                                      user: account.user,
-                                      password: account.password,
-                                      host: account.smtp.address,
-                                      port: account.smtp.port,
-                                    };
-                                    let accountImap = {
-                                      user: account.user,
-                                      password: account.password,
-                                      address: account.imap.address,
-                                      port: account.imap.port,
-                                    };
 
                                     let accounts = Session.get('accounts');
-                                    if (!accounts || (typeof accounts) != "object") {
+                                    if (!accounts || (typeof accounts) != 'object') {
                                       accounts = [];
                                     }
                                     if (accounts.find(e => e.user == account.user)) {
                                       showError('account already exists');
                                       return;
                                     }
-
 
                                     accounts.push(account);
 
@@ -65,23 +104,8 @@ Template.addAccountModal.events({
                                     Session.set('thisAccount', account);
                                     localStorage.setItem('thisAccount', JSON.stringify(account));
 
-                                    // Meteor.call('tryConnectSmtp', accountSmtp, (err, res) => {
-                                    //   if (err) {
-                                    //     showError(err);
-                                    //   }
-                                    //
-                                    //   if (res) {
-                                    //     showSuccess('successfully connected to smtp server');
-                                    //   }
-                                    // });
-                                    // Meteor.call('tryConnectImap', accountImap, (err, res) => {
-                                    //   if (err) {
-                                    //     showError('can\'t connect to imap server');
-                                    //   }
-                                    //
-                                    //   if (res) {
-                                    //     showSuccess('successfully connected to imap server');
-                                    //   }
-                                    // });
-                                  }
+                                    syncEmailsAndBoxes();
+
+                                    $('#addAccountModalCloseButton').click();
+                                  },
                                 });

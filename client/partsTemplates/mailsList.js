@@ -30,13 +30,14 @@ function syncEmailsAndBoxes() {
 
   Meteor.call('getBoxes', thisAccount, (err, boxes) => {
     if (err) {
-      if (err.error=='500') {
+      if (err.error == '500') {
         showError('cannot retrieve data via IMAP. Check your credentials');
         return;
       }
       showError(err);
       return;
-    };
+    }
+    ;
 
     console.log('in getBoxes callback');
     Session.set('boxes', boxes);
@@ -48,13 +49,14 @@ function syncEmailsAndBoxes() {
     doneSyncing();
     console.log('syncBox finished');
     if (err) {
-      if (err.error=='500') {
+      if (err.error == '500') {
         showError('cannot retrieve data via IMAP. Check your credentials');
         return;
       }
       showError(err);
       return;
-    };
+    }
+    ;
     if (res) {
       showSuccess(res)
     }
@@ -76,7 +78,7 @@ Template.mailsList.onCreated(function () {
   let accounts;
   try {
     accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
-  }catch (e) {
+  } catch (e) {
     accounts = [];
   }
   // console.log(accountsList);
@@ -85,7 +87,7 @@ Template.mailsList.onCreated(function () {
   let thisAccount;
   try {
     thisAccount = JSON.parse(localStorage.getItem('thisAccount') || '{}');
-  }catch (e) {
+  } catch (e) {
     thisAccount = {};
   }
   // console.log(thisAccount);
@@ -136,7 +138,11 @@ Template.mailsList.helpers({
                                return Session.get('thisBox');
                              },
                              from(email) {
-                               return email.from ? email.from.substring(email.from.indexOf('<') + 1, email.from.indexOf('>')) : '';
+                               if (email.from.indexOf('<') >= 0) {
+                                 return email.from ? email.from.substring(email.from.indexOf('<') + 1, email.from.indexOf('>')) : '';
+                               } else {
+                                 return email.from;
+                               }
                              },
                              subject(email) {
                                return email.subject ? email.subject.substring(0, 20) + '...' : '';

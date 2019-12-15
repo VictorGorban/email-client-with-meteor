@@ -22,7 +22,7 @@
             <div class="log-arrow-up"></div>
             <ul class="nav nav-pills nav-stacked labels-info inbox-divider">
               {{#each account in accounts}}
-                <li><a href="#settingsModal" data-toggle="modal" class="account-link"> {{account.user}} </a></li>
+                <li><a href class="account-link"> {{account.user}} </a></li>
 <!--                <li><a href="#"> victorgorban2@ya.ru </a></li>-->
 <!--                <li><a href="#"> gorban-99@mail.ru </a></li>-->
               {{/each}}
@@ -31,7 +31,7 @@
                 <i class="fa fa-plus"></i> Add Account
               </a></li>
             </ul>
-            <li><a href="#settingsModal" data-toggle="modal"><i class="fa fa-cog"></i> Settings</a></li>
+            <li><a id="accountSettingsButton" href="#settingsModal" data-toggle="modal"><i class="fa fa-cog"></i> Settings</a></li>
             <li><a id="logout" href=""><i class="fa fa-key"></i> Log Out</a></li>
           </ul>
         </li>

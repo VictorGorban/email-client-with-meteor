@@ -72,24 +72,28 @@ Template.composeModal.events({
                                    attachmentStrings = await Promise.all(attachmentStrings);
                                    for (let i in attachments) {
                                      attachments[i] = {
-                                       filename: attachments[i].filename,
+                                       filename: attachments[i].name,
                                        content: attachmentStrings[i].split(',')[1], // base64 part of DataURL
                                      };
                                    }
-
+                                   return attachments;
 
                                  }
 
                                  let options = Session.get('thisAccount');
+                                 let attachments = await getAttachmentsAsBase64();
                                  let mail = {
-                                   from: options.email,
+                                   from: options.user,
                                    to: $('#composeTo').val(),
                                    subject: $('#composeSubject').val(),
                                    html: $('#froalaHelper').text(),
-                                   attachments: await getAttachmentsAsBase64(),
+                                   attachments: attachments,
                                  }
 
-                                 Meteor.call('sendMessage', options, mail, (err, res) => {
+                                 console.log(mail);
+                                 // return;
+
+                                 Meteor.call('sendMessage', Session.get('thisBox'), options, mail, (err, res) => {
                                    if (err) {
                                      showError(err);
                                    }
