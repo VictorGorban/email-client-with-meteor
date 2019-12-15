@@ -30,28 +30,44 @@ function syncEmailsAndBoxes() {
   });
 
 
-  Meteor.call('syncBox', Session.get('thisBox'), Session.get('thisAccount'));
+  Meteor.call('syncBox', Session.get('thisBox'), Session.get('thisAccount'), (err, res) => {
+    doneSyncing();
+    console.log('syncBox finished');
+    if (err) {
+      showError(err);
+    }
+    if (res) {
+      showSuccess(res)
+    }
+  });
 
-  setTimeout(doneSyncing, 3000);
+  setTimeout(doneSyncing, 5000); // Хрен его знает, почему imap не завершает fetch из trash
+}
+
+function loadThisMailAttachments() {
+  let id = Session.get('thisMailId');
+  let seqNumber = Emails.findOne(id).seqno;
+
+  Meteor.call('loadEmail', Session.get('thisBox'), Session.get('thisAccount'), seqNumber);
 }
 
 
 Template.mailsList.onCreated(function () {
 
-  let accountsList = JSON.parse(localStorage.getItem('accountsList') || '[]');
+  let accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
   // console.log(accountsList);
-  Session.set('accountsList', accountsList);
+  Session.set('accounts', accounts);
 
   let thisAccount = JSON.parse(localStorage.getItem('thisAccount') || '{}');
   // console.log(thisAccount);
   Session.set('thisAccount', thisAccount);
 
 
-  let boxes = localStorage.getItem('boxes');
+  let boxes = localStorage.getItem('boxes') || {};
   if (boxes == 'undefined') {
     boxes = '{}';
   }
-  boxes = JSON.parse(boxes || '{}');
+  boxes = JSON.parse(boxes);
 
   // console.log(boxes);
   Session.set('boxes', boxes);
@@ -61,24 +77,6 @@ Template.mailsList.onCreated(function () {
 
 
   Meteor.subscribe('timeline.all');
-
-  /*  const cursor = Timeline.find();
-   cursor.observeChanges({
-   added(id, tl) {
-   switch (tl.type) {
-   case 'error':
-   showError(tl.message);
-   break;
-   case 'success':
-   showSuccess(tl.message);
-   break;
-   default:
-   showInfo(tl.message);
-   }
-   console.log(tl);
-   },
-   });*/
-
 
   syncEmailsAndBoxes();
   setInterval(syncEmailsAndBoxes, 60 * 1000);
@@ -96,6 +94,11 @@ Template.mailsList.events({
                             'click .email-row': function (e, t) {
                               let id = e.currentTarget.getAttribute('data-id');
                               Session.set('thisMailId', id);
+
+                              loadThisMailAttachments();
+                              // if (Session.get('thisBox') == 'Drafts') {
+                              //   $('.btn.btn-compose').click()
+                              // }
                             },
                           });
 
@@ -116,7 +119,14 @@ Template.mailsList.helpers({
                                // return Template.mailsList.emails;
                                // var folder = Session.get('thisFolder');
                                // let box = 'inbox';
-                               return Emails.find({box: Session.get('thisBox')}, {sort: {date: -1}});
+                               let user = Session.get('thisAccount').user;
+                               if (!user) {
+                                 return;
+                               }
+                               return Emails.find({
+                                                    box: Session.get('thisBox'),
+                                                    user: user,
+                                                  }, {sort: {date: -1}});
                              },
                              hasAttachment: function (email) {
                                // console.log(email.from);

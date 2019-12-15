@@ -38,7 +38,7 @@
 <!--            <br>-->
             {{#each attachment in thisMail.attachments}}
               <br>
-              <a href="#"><i class="fa fa-paperclip"></i>{{attachment.filename}}</a>
+              <a href="{{getAttachmentUrl attachment}}" download="{{attachment.filename}}">{{attachment.filename}}</a>
             {{/each}}
           </p>
         </div>
@@ -50,20 +50,26 @@
         <button href="#decipherModal" data-toggle="modal" title="Decipher this mail" class="btn  btn-warning">
           <i class="fa fa-unlock"></i> Decipher
         </button>
-        <div class="dropdown dropup inline-block">
+        <div class="dropdown inline-block">
           <button class="btn btn-default dropdown-toggle" style="background: #e7be79b8" type="button" id="moveToFolderDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
             <i class="fa fa-folder"></i> Move to
             <span class="caret"></span>
           </button>
           <ul class="nav nav-pills nav-stacked labels-info dropdown-menu" aria-labelledby="moveToFolderDropdown">
-            <li><a href="#">Folder 1</a></li>
-            <li><a href="#">Folder 2</a></li>
-            <li><a href="#">Folder 3</a></li>
+            {{#each boxName in boxesNames}}
+              <li class="{{#if $.Session.equals 'thisBox' boxName}}active{{/if}}">
+                <a href="" class="folder-name">{{boxName}}</a>
+              </li>
+            {{else}}
+              <li>
+                <a href="#"> No boxes</a>
+              </li>
+            {{/each}}
           </ul>
         </div>
 
-        <button title="Delete this mail" class="btn  btn-danger">
-          <i class="fa fa-trash"></i> Delete
+        <button id="deleteMail" title="Delete this mail" class="btn  btn-danger">
+          <i class="fa fa-trash"></i> Trash
         </button>
       </div>
     {{else}}

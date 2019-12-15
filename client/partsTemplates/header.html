@@ -8,20 +8,25 @@
       <ul class="nav pull-right top-menu">
         <!-- user login dropdown start-->
         <li>
-          <button style="padding: 7.5px 12px" id="syncButton" class="btn btn-primary btn-sync"><i class="fa fa-refresh {{#if $.Session.equals 'isSyncing' true}} fa-spin {{/if}}" aria-hidden="true"></i></button>
+          <button style="padding: 7.5px 12px" id="syncButton" class="btn btn-primary btn-sync">
+            <i class="fa fa-refresh {{#if $.Session.equals 'isSyncing' true}} fa-spin {{/if}}" aria-hidden="true"></i>
+          </button>
         </li>
         <li class="dropdown">
           <a data-toggle="dropdown" class="dropdown-toggle" href="#">
             <!--            <img alt="" src="img/avatar1_small.jpg">-->
-            <span class="username">victorgorban2@gmail.com</span>
+            <span class="username">{{thisAccount.user}}</span>
             <b class="caret"></b>
           </a>
           <ul class="dropdown-menu extended logout">
             <div class="log-arrow-up"></div>
             <ul class="nav nav-pills nav-stacked labels-info inbox-divider">
-              <li><a href="#" class="text-info"> victorgorban2@gmail.com </a></li>
-              <li><a href="#"> victorgorban2@ya.ru </a></li>
-              <li><a href="#"> gorban-99@mail.ru </a></li>
+              {{#each account in accounts}}
+                <li><a href="#settingsModal" data-toggle="modal" class="account-link"> {{account.user}} </a></li>
+<!--                <li><a href="#"> victorgorban2@ya.ru </a></li>-->
+<!--                <li><a href="#"> gorban-99@mail.ru </a></li>-->
+              {{/each}}
+
               <li><a href="#addAccountModal" data-toggle="modal" class="btn" style="background: #41cac04f">
                 <i class="fa fa-plus"></i> Add Account
               </a></li>

@@ -5,6 +5,22 @@ Template.composeModal.onCreated(() => {
   this.fileIndex = 0;
 });
 
+Template.composeModal.helpers({
+                                /*mailToCompose(){
+                                 let id = Session.get('thisMailId');
+                                 if (!id)
+                                 return;
+                                 let mail = Emails.findOne(id);
+                                 if (!mail)
+                                 return;
+                                 let box = mail.box;
+                                 if(box!='Drafts'){
+                                 return;
+                                 }
+                                 return mail;
+                                 }*/
+                              });
+
 Template.composeModal.events({
                                'click #addAttachment': () => {
                                  this.fileIndex++;
@@ -15,34 +31,60 @@ Template.composeModal.events({
 
                                'submit #composeForm': async (e, t) => {
                                  e.preventDefault();
+
                                  // прохожусь по всем input[type="file"], забираю file
-                                 let lists = $.map($('input[type="file"].compose-attachment'), elem => elem.files);
-                                 let attachments = [];
-                                 for (list of lists) {
-                                   for (f of list) {
-                                     attachments.push(f);
+
+
+                                 async function getAttachmentsAsBase64() {
+                                   let lists = $.map($('input[type="file"].compose-attachment'), elem => elem.files);
+                                   let attachments = [];
+                                   for (list of lists) {
+                                     for (f of list) {
+                                       attachments.push(f);
+                                     }
                                    }
+                                   if (!attachments.length) {
+                                     return [];
+                                   }
+
+                                   // console.log(attachments);
+                                   let at = attachments[0];
+                                   const fileToBase64 = file => new Promise((resolve, reject) => {
+                                     const reader = new FileReader();
+                                     reader.readAsDataURL(file);
+                                     reader.onload = () => resolve(reader.result);
+                                     reader.onerror = error => reject(error);
+                                   });
+
+                                   let attachmentStrings = attachments.map(async att => fileToBase64(att));
+                                   attachmentStrings = await Promise.all(attachmentStrings);
+                                   for (let i in attachments) {
+                                     attachments[i] = {
+                                       filename: attachments[i].filename,
+                                       content: attachmentStrings[i].split(',')[1], // base64 part of DataURL
+                                     };
+                                   }
+
+
                                  }
-                                 console.log(attachments);
-                                 let at = attachments[0];
-                                 const fileToBase64 = file => new Promise((resolve, reject) => {
-                                   const reader = new FileReader();
-                                   reader.readAsDataURL(file);
-                                   reader.onload = () => resolve(reader.result);
-                                   reader.onerror = error => reject(error);
-                                 });
-                                 console.log(await fileToBase64(at));
-                                 (file=> {
-                                   if (!file) {
-                                     return;
+
+                                 let options = Session.get('thisAccount');
+                                 let mail = {
+                                   from: options.email,
+                                   to: $('#composeTo').val(),
+                                   subject: $('#composeSubject').val(),
+                                   html: $('#froalaHelper').text(),
+                                   attachments: await getAttachmentsAsBase64(),
+                                 }
+
+                                 Meteor.call('sendMessage', options, mail, (err, res) => {
+                                   if (err) {
+                                     showError(err);
                                    }
-                                   var reader = new FileReader();
-                                   reader.onload = function (e) {
-                                     var contents = e.target.result;
-                                     console.log('contents of file is ' + contents);
-                                   };
-                                   reader.readAsText(file)
-                                 })(at);
+                                   if (res) {
+                                     showSuccess(res);
+                                   }
+                                 });
 
                                },
                              });
