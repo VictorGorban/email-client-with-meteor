@@ -2,7 +2,7 @@ import '../commonFunctions'
 import {Meteor} from 'meteor/meteor';
 
 
-Template.viewMail.events({
+Template.viewSavedMailModal.events({
                            'click #deleteMail': function (e, t) {
                              e.preventDefault();
                              let seqno = Emails.findOne(Session.get('thisMailId')).seqno;
@@ -70,24 +70,9 @@ Template.viewMail.events({
                            },
                          });
 
-Template.viewMail.helpers({
-
-
-                            boxes() {
-                              return Session.get('boxes');
-                            },
-                            boxesNames() {
-                              let boxes = Session.get('boxes');
-                              if (!boxes) {
-                                return null;
-                              }
-
-                              let props = Object.getOwnPropertyNames(boxes);
-                              props.splice(props.indexOf('Outbox'), 1);
-                              return props;
-                            },
+Template.viewSavedMailModal.helpers({
                             thisMail() {
-                              return Emails.findOne(Session.get('thisMailId'));
+                              return Session.get('thisViewingMail');
                             },
 
                             hasAttachment: function (email) {

@@ -31,7 +31,7 @@ function syncEmailsAndBoxes() {
   }
 
   Meteor.call('getBoxes', thisAccount, (err, boxes) => {
-    if(err){
+    if (err) {
       showError(err);
       return;
     }
@@ -66,13 +66,46 @@ Template.sidebar.helpers({
                                return null;
                              }
 
-                             let props =Object.getOwnPropertyNames(boxes);
-                             props.splice(props.indexOf('Outbox'),1);
+                             let props = Object.getOwnPropertyNames(boxes);
+                             props.splice(props.indexOf('Outbox'), 1);
                              return props;
                            },
                          });
 
 Template.sidebar.events({
+                          'click #buttonViewSavedMail': function (e, t) {
+                            // e.preventDefault();
+                            $('#loadSavedFile').click();
+                          },
+                          'change #loadSavedFile': async function (e, t) {
+                            const fileToText = file => new Promise((resolve, reject) => {
+                              const reader = new FileReader();
+                              reader.readAsText(file);
+                              reader.onload = () => resolve(reader.result);
+                              reader.onerror = error => reject(error);
+                            });
+
+                            let file = e.currentTarget.files[0];
+                            let json = await fileToText(file);
+
+
+                            let email;
+                            try {
+                              email = JSON.parse(json);
+                            }catch (e) {
+                              showError('can\'t parse your message file. Maybe it\'s corrupted?');
+                              console.log(e);
+                              return;
+                            }
+
+                            console.log(email);
+                            // return;
+
+                            Session.set('thisViewingMail', email);
+
+
+                            $('#viewSavedMailModal').modal();
+                          },
                           'click .email-box': function (e, t) {
                             e.preventDefault();
                             let boxName = e.currentTarget.text;

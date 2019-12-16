@@ -1,7 +1,26 @@
+import './loader.html'
+
+import './composeModal.html'
+import './composeModal'
+
+import './viewSavedMailModal.html'
+import './viewSavedMailModal'
+
+import './addAccountModal.html'
+import './addAccountModal'
+
+import './settingsModal.html'
+import './settingsModal'
+
+import './cypherModal.html'
+import './cypherModal'
+
+import './decipherModal.html'
+import './decipherModal'
+
+
 import './sidebar.html'
 import './sidebar'
-
-import './loader.html'
 
 import './header.html'
 import './header'
@@ -15,20 +34,7 @@ import './viewMail'
 import './froala.html'
 import './froala'
 
-import './composeModal.html'
-import './composeModal'
 
-import './addAccountModal.html'
-import './addAccountModal'
-
-import './settingsModal.html'
-import './settingsModal'
-
-import './cypherModal.html'
-import './cypherModal'
-
-import './decipherModal.html'
-import './decipherModal'
 
 // import './addAccountModal.html'
 // import './addAccountModal'

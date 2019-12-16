@@ -5,7 +5,6 @@
       Compose
     </a>
 
-
   </div>
   <ul class="inbox-nav inbox-divider">
     {{#each boxName in boxesNames}}
@@ -18,6 +17,11 @@
       </li>
     {{/each}}
   </ul>
-
-
+  <div class="container">
+    <br>
+    <button id="buttonViewSavedMail" class="btn btn-primary" href="">  <!--data-toggle="modal" href="#viewSavedMailModal"-->
+      View saved mail
+    </button>
+    <input type="file" id="loadSavedFile" class="hidden">
+  </div>
 </template>

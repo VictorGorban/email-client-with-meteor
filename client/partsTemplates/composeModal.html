@@ -11,37 +11,38 @@
         <div class="modal-body">
           <form id="composeForm" class="form-horizontal" role="form">
 
-              <div class="form-group">
-                <label class="col-lg-2 control-label">To</label>
-                <div class="col-lg-10">
-                  <input type="text" required class="form-control" id="composeTo" placeholder="" value="{{mailToCompose.to}}">
-                </div>
+            <div class="form-group">
+              <label class="col-lg-2 control-label">To</label>
+              <div class="col-lg-10">
+                <input type="text" required class="form-control" id="composeTo" placeholder="" value="{{mailToCompose.to}}">
               </div>
-              <div class="form-group">
-                <label class="col-lg-2 control-label">Subject</label>
-                <div class="col-lg-10">
-                  <input type="text" required class="form-control" id="composeSubject" placeholder="" value="{{mailToCompose.subject}}">
-                </div>
+            </div>
+            <div class="form-group">
+              <label class="col-lg-2 control-label">Subject</label>
+              <div class="col-lg-10">
+                <input type="text" required class="form-control" id="composeSubject" placeholder="" value="{{mailToCompose.subject}}">
               </div>
+            </div>
 
-              <div class="form-group">
-                <label class="col-lg-2 control-label">Message</label>
-                <div style="width: 95%; margin: 3em auto 1em; ">
-                  {{> froala html=mailToCompose.html}}
-                </div>
+            <div class="form-group">
+              <label class="col-lg-2 control-label">Message</label>
+              <div style="width: 95%; margin: 3em auto 1em; ">
+                {{> froala html=mailToCompose.html}}
               </div>
+            </div>
 
-              <div class="form-group">
-                <div class="col-md-10">
-                  <ul id="composeFilesList" class="">
-                    <li style="margin-top: 5px;">
-                      <input type="file" hidden multiple class="btn btn-white compose-attachment"></li>
-                  </ul>
-                  <button type="button" id="addAttachment" class="btn btn-default">
-                    <i class="fa fa-plus fa fa-white"></i><span>Attachment</span>
-                  </button>
-                </div>
+            <div class="form-group">
+              <div class="col-md-10">
+                <ul id="composeFilesList" class="">
+                  <li style="margin-top: 5px;">
+                    <input type="file" hidden multiple class="btn btn-white compose-attachment">
+                  </li>
+                </ul>
+                <button type="button" id="addAttachment" class="btn btn-default">
+                  <i class="fa fa-plus fa fa-white"></i><span>Attachment</span>
+                </button>
               </div>
+            </div>
 
 
             <button href="#cypherModal" data-toggle="modal" title="Cypher this mail" class="btn  btn-danger">
