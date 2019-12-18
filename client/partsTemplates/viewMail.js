@@ -1,8 +1,27 @@
-import '../commonFunctions'
 import {Meteor} from 'meteor/meteor';
+
+function showError(message) {
+  toastr.error(message);
+}
+
+function showSuccess(message) {
+  toastr.success(message);
+}
+
+function showInfo(message) {
+  toastr.success(message);
+}
 
 
 Template.viewMail.events({
+                           'click #processMailTrigger': function (e, t) {
+                             let thisMail = Emails.findOne(Session.get('thisMailId'));
+                             if (!thisMail) {
+                               return;
+                             }
+                             Session.set('mailToProcess', thisMail);
+                             $('#processMailModal').modal();
+                           },
                            'click #deleteMail': function (e, t) {
                              e.preventDefault();
                              let seqno = Emails.findOne(Session.get('thisMailId')).seqno;
@@ -59,8 +78,7 @@ Template.viewMail.events({
                                  var event = document.createEvent('MouseEvents');
                                  event.initEvent('click', true, true);
                                  pom.dispatchEvent(event);
-                               }
-                               else {
+                               } else {
                                  pom.click();
                                }
                              }
@@ -125,7 +143,7 @@ Template.viewMail.helpers({
                               return getObjectUrl(attachment.content, attachment.filename, attachment.contentType);
                             },
                             date(email) {
-                              return email.date.toDateString();
+                              return email.date ? email.date.toDateString() : new Date().toDateString();
                             },
                             unread(email) {
                               return email.flags.includes('\\Seen') ? '' : 'unread';

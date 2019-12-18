@@ -3,8 +3,8 @@ import './loader.html'
 import './composeModal.html'
 import './composeModal'
 
-import './viewSavedMailModal.html'
-import './viewSavedMailModal'
+import './processMailModal.html'
+import './processMailModal'
 
 import './addAccountModal.html'
 import './addAccountModal'

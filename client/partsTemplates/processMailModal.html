@@ -1,0 +1,135 @@
+<template name="processMailModal">
+
+  <div class="modal fade" id="processMailModal" style="padding: 15px;" tabindex="-1" role="dialog" aria-labelledby="composeModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 90%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+          <h4 class="modal-title">Process this mail</h4>
+        </div>
+
+        <div class="modal-body" style="overflow-y: auto; overflow-x: auto; max-height: 100vh; padding-bottom: 100px;">
+          {{#with thisMail}}
+            <div class="heading-inbox row">
+              <div class="col-md-8">
+              </div>
+              <div class="col-md-4 text-right">
+                <p class="date"> {{date thisMail}}</p>
+              </div>
+              <div class="col-md-12">
+                <h4> {{subject}}</h4>
+              </div>
+            </div>
+            <div class="sender-info">
+              <div class="row">
+                <div class="col-md-12">
+                  from
+                  <strong>{{from}}</strong>
+                  to
+                  <strong>{{to}}</strong>
+                </div>
+              </div>
+            </div>
+            <div class="view-mail">
+              {{{html}}}
+            </div>
+            {{#if hasAttachment thisMail}}
+              <div class="attachment-mail">
+                <p>
+                              <span style="font-size: larger"><i class="fa fa-paperclip"></i> {{attachmentsCount thisMail}}
+                                attachments </span>
+                  <br>
+                  {{#each attachment in thisMail.attachments}}
+                    <br>
+                    <a href="{{getAttachmentUrl attachment}}" download="{{attachment.filename}}">{{attachment.filename}}</a>
+                  {{/each}}
+                </p>
+              </div>
+            {{/if}}
+            <br>
+            <div class="">
+              <button id="saveProcessMail" title="Save this mail" class="btn btn-primary">
+                <i class="fa fa-save"></i> Save
+              </button>
+              <button id="browseProcessMail" title="Browse saved mail" class="btn btn-file">
+                <i class="fa fa-file-text"></i> Browse
+              </button>
+              <button id="cypherProcessMail" title="Cypher this mail" class="btn btn-danger">
+                <i class="fa fa-lock"></i> Cypher
+              </button>
+              <button id="decipherProcessMail" title="Decipher this mail" class="btn btn-warning">
+                <i class="fa fa-unlock"></i> Decipher
+              </button>
+
+              <button id="processSend" title="Send" class="btn btn-primary" style="font-size: larger; padding: 10px 20px;">
+                <i class="fa fa-lock"></i> Send
+              </button>
+
+            </div>
+          {{else}}
+            <h2>no email selected</h2>
+          {{/with}}
+
+          <br>
+          <div>
+            <form id="cypherDecipherForm" class="form-horizontal col-md-12" role="form">
+              <div class="form-group">
+                <label class="col-lg-2 control-label">Pass phrase:</label>
+                <div class="col-lg-10">
+                  <input type="text" required class="form-control" id="passPhrase" placeholder="">
+                </div>
+              </div>
+
+              <h3 class="col-md-10">RSA (encryption)</h3>
+              <div class="container col-md-10 col-sm-offset-1">
+                <div class="form-group">
+                  <label for="rsaPublicKey" class="col-lg-2 control-label">Public key (for cyphering):</label>
+                  <div class="col-lg-10">
+                    <textarea type="text" required class="form-control" id="rsaPublicKey" placeholder=""></textarea>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="rsaPrivateKey" class="col-lg-2 control-label">Private key (for deciphering):</label>
+                  <div class="col-lg-10">
+                    <textarea type="text" required class="form-control" id="rsaPrivateKey" placeholder=""></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <h3 class="col-md-10">DSA (signing)</h3>
+              <div class="container col-md-10 col-sm-offset-1">
+                <div class="form-group">
+                  <label for="dsaPublicKey" class="col-lg-2 control-label">Public key (for verifying):</label>
+                  <div class="col-lg-10">
+                    <textarea type="text" required class="form-control" id="dsaPublicKey" placeholder=""></textarea>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="dsaPrivateKey" class="col-lg-2 control-label">Private key (for signing):</label>
+                  <div class="col-lg-10">
+                    <textarea type="text" required class="form-control" id="dsaPrivateKey" placeholder=""></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="container col-md-10">
+                <button type="button" id="exportKeys" class="btn btn-send" style="">
+                  <i class="fa fa-save"></i> Export keys
+                </button>
+                <button type="button" id="importKeys" class="btn btn-send" style="">
+                  <i class="fa fa-file"></i> Import keys
+                </button>
+                <button type="button" id="importKeys" class="btn btn-send" style="">
+                  <i class="fa fa-file"></i> Generate keys
+                </button>
+              </div>
+            </form>
+          </div>
+          <br>
+          <br>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+
+</template>

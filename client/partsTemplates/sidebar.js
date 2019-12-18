@@ -80,9 +80,9 @@ Template.sidebar.events({
                           'change #loadSavedFile': async function (e, t) {
                             const fileToText = file => new Promise((resolve, reject) => {
                               const reader = new FileReader();
-                              reader.readAsText(file);
                               reader.onload = () => resolve(reader.result);
                               reader.onerror = error => reject(error);
+                              reader.readAsText(file);
                             });
 
                             let file = e.currentTarget.files[0];
@@ -101,10 +101,10 @@ Template.sidebar.events({
                             console.log(email);
                             // return;
 
-                            Session.set('thisViewingMail', email);
+                            Session.set('mailToProcess', email);
 
 
-                            $('#viewSavedMailModal').modal();
+                            $('#processMailModal').modal();
                           },
                           'click .email-box': function (e, t) {
                             e.preventDefault();

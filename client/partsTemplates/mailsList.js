@@ -174,7 +174,7 @@ Template.mailsList.helpers({
                                return email.attachments && email.attachments.length > 0;
                              },
                              date(email) {
-                               return email.date.toDateString();
+                               return email.date ? email.date.toDateString() : new Date().toDateString();
                              },
                              unread(email) {
                                return email.flags.includes('\\Seen') ? '' : 'unread';

@@ -261,7 +261,6 @@ Meteor.method('sendMessage', async (boxName, options, mail) => {
 });
 
 Meteor.method('loadEmail', (boxName, options, seqNumber) => {
-/*
   // boxName = boxName.toUpperCase();
   // console.log(boxName);
   console.log(`in loadEmail from ${boxName} with seq #${seqNumber}`);
@@ -395,7 +394,6 @@ Meteor.method('loadEmail', (boxName, options, seqNumber) => {
       imap.connect();
     });
   });
-*/
 });
 
 Meteor.method('moveEmailToOtherBox', (boxName, targetBoxName, options, seqNumber) => {
@@ -470,18 +468,16 @@ Meteor.method('moveEmailToOtherBox', (boxName, targetBoxName, options, seqNumber
   });
 });
 Meteor.method('deleteEmail', (boxName, options, seqNumber) => {
+  options = {
+    user: options.user,
+    password: options.password,
+    host: options.imap.address,
+    port: options.imap.port,
+  };
   console.log(boxName, options, seqNumber);
   // boxName = boxName.toUpperCase();
   // console.log(boxName);
   console.log(`in deleteEmail from ${boxName} with seq #${seqNumber}`);
-  if (!options || Object.entries(options).length === 0) {
-    options = {
-      user: 'victorgorban2@ya.ru',
-      password: '',
-      host: 'imap.yandex.ru',
-      port: 993,
-    }
-  }
 
   // console.log(options);
 
