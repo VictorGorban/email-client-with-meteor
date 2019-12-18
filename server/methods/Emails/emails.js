@@ -261,6 +261,7 @@ Meteor.method('sendMessage', async (boxName, options, mail) => {
 });
 
 Meteor.method('loadEmail', (boxName, options, seqNumber) => {
+/*
   // boxName = boxName.toUpperCase();
   // console.log(boxName);
   console.log(`in loadEmail from ${boxName} with seq #${seqNumber}`);
@@ -394,6 +395,7 @@ Meteor.method('loadEmail', (boxName, options, seqNumber) => {
       imap.connect();
     });
   });
+*/
 });
 
 Meteor.method('moveEmailToOtherBox', (boxName, targetBoxName, options, seqNumber) => {
@@ -401,17 +403,18 @@ Meteor.method('moveEmailToOtherBox', (boxName, targetBoxName, options, seqNumber
   // boxName = boxName.toUpperCase();
   // console.log(boxName);
   console.log(`in moveEmailToOtherBox from ${boxName} to ${targetBoxName} with seq #${seqNumber}`);
-  if (!options || Object.entries(options).length === 0) {
-    options = {
-      user: 'victorgorban2@ya.ru',
-      password: '',
-      host: 'imap.yandex.ru',
-      port: 993,
-    }
-  }
 
-  // console.log(options);
+  options = {
+    user: options.user,
+    password: options.password,
+    host: options.imap.address,
+    port: options.imap.port,
+  };
 
+
+  console.log(options);
+
+  // return;
   var bound = Meteor.bindEnvironment(function (callback) {
     return callback();
   });
@@ -457,14 +460,6 @@ Meteor.method('moveEmailToOtherBox', (boxName, targetBoxName, options, seqNumber
 
       imap.once('error', function (err) {
         reject(err);
-        bound(function (err) {
-          console.log(err);
-          Timeline.insert({
-                            type: 'error',
-                            message: 'an error occured. Maybe you passed incorrect params? Or you lost the connection?',
-                            details: err,
-                          })
-        });
       });
 
       imap.once('end', function () {
