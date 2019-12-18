@@ -51,9 +51,12 @@
               <button id="saveProcessMail" title="Save this mail" class="btn btn-primary">
                 <i class="fa fa-save"></i> Save
               </button>
+
               <button id="browseProcessMail" title="Browse saved mail" class="btn btn-file">
                 <i class="fa fa-file-text"></i> Browse
               </button>
+              <input type="file" id="fileProcessMail" class="hidden">
+
               <button id="cypherProcessMail" title="Cypher this mail" class="btn btn-danger">
                 <i class="fa fa-lock"></i> Cypher
               </button>
@@ -85,13 +88,13 @@
                 <div class="form-group">
                   <label for="rsaPublicKey" class="col-lg-2 control-label">Public key (for cyphering):</label>
                   <div class="col-lg-10">
-                    <textarea type="text" required class="form-control" id="rsaPublicKey" placeholder=""></textarea>
+                    <textarea type="text" required class="form-control" id="rsaPublicKey" placeholder="">{{keys.rsa.public}}</textarea>
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="rsaPrivateKey" class="col-lg-2 control-label">Private key (for deciphering):</label>
                   <div class="col-lg-10">
-                    <textarea type="text" required class="form-control" id="rsaPrivateKey" placeholder=""></textarea>
+                    <textarea type="text" required class="form-control" id="rsaPrivateKey" placeholder="">{{keys.rsa.private}}</textarea>
                   </div>
                 </div>
               </div>
@@ -101,13 +104,13 @@
                 <div class="form-group">
                   <label for="dsaPublicKey" class="col-lg-2 control-label">Public key (for verifying):</label>
                   <div class="col-lg-10">
-                    <textarea type="text" required class="form-control" id="dsaPublicKey" placeholder=""></textarea>
+                    <textarea type="text" required class="form-control" id="dsaPublicKey" placeholder="">{{keys.dsa.public}}</textarea>
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="dsaPrivateKey" class="col-lg-2 control-label">Private key (for signing):</label>
                   <div class="col-lg-10">
-                    <textarea type="text" required class="form-control" id="dsaPrivateKey" placeholder=""></textarea>
+                    <textarea type="text" required class="form-control" id="dsaPrivateKey" placeholder="">{{keys.dsa.private}}</textarea>
                   </div>
                 </div>
               </div>
@@ -115,10 +118,13 @@
                 <button type="button" id="exportKeys" class="btn btn-send" style="">
                   <i class="fa fa-save"></i> Export keys
                 </button>
+
                 <button type="button" id="importKeys" class="btn btn-send" style="">
                   <i class="fa fa-file"></i> Import keys
                 </button>
-                <button type="button" id="importKeys" class="btn btn-send" style="">
+                <input type="file" id="importKeysFile" class="hidden">
+
+                <button type="button" id="generateKeys" class="btn btn-send" style="">
                   <i class="fa fa-file"></i> Generate keys
                 </button>
               </div>

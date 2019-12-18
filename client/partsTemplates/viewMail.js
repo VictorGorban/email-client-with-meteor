@@ -67,7 +67,7 @@ Template.viewMail.events({
                              let email = Emails.findOne(Session.get('thisMailId'));
 
                              // to string
-                             let json = JSON.stringify(email);
+                             let ejson = EJSON.stringify(email); // ejson - потому что нужна поддержка бинарного типа Utf8Array
 
                              function download(filename, text) {
                                var pom = document.createElement('a');
@@ -83,7 +83,7 @@ Template.viewMail.events({
                                }
                              }
 
-                             download('email', json)
+                             download('email', ejson)
 
                            },
                          });

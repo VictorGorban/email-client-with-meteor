@@ -13,11 +13,11 @@ $(function() {
     });
 });
 
-// right slidebar
-
-$(function(){
- $.slidebars();
-});
+// // right slidebar
+// // если будет, надо раскомментить
+// $(function(){
+//  $.slidebars();
+// });
 
 // for mobile check
 function mobilecheck() {

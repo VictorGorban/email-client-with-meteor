@@ -3,8 +3,9 @@ let crypto = require('crypto')
 Meteor.methods({
                  cypherAndSignEmail(emailId, passphrase, rsaPublicKey, dsaPrivateKey) {
                    let email = Emails.findOne(emailId);
-                   if (!email)
+                   if (!email) {
                      return new Meteor.Error('email not found');
+                   }
                    passphrase = crypto.publicEncrypt(rsaPublicKey, Buffer.from(passphrase));
 
                    let html = email.html;
@@ -27,7 +28,6 @@ Meteor.methods({
                    console.log(encrypted);
 
 
-
                    return 'encrypted';
 
                    email.html = html;
@@ -42,39 +42,56 @@ Meteor.methods({
 
                  },
 
+                 generateKeys() {
+                   // синхронно. Надо сделать async, ибо долго
+                   let rsa = Meteor.call('generateRsaKeyPair');
+                   let dsa = Meteor.call('generateDsaKeyPair');
+
+                   return {
+                     rsa: rsa,
+                     dsa: dsa,
+                   }
+                 },
+
                  generateRsaKeyPair() {
-                   const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+                   const {privateKey, publicKey} = crypto.generateKeyPairSync('rsa', {
                      modulusLength: 2048,
                      publicKeyEncoding: {
                        type: 'spki',
-                       format: 'pem'
+                       format: 'pem',
                      },
                      privateKeyEncoding: {
                        type: 'pkcs8',
-                       format: 'pem'
-                     }
+                       format: 'pem',
+                     },
                    });
 
-                   console.log(privateKey, publicKey);
+                   // console.log(privateKey, publicKey);
 
-                   return {private: privateKey, public: publicKey}
+                   return {
+                     private: privateKey,
+                     public: publicKey,
+                   }
                  },
                  generateDsaKeyPair() {
-                   const { privateKey, publicKey } = crypto.generateKeyPairSync('dsa', {
+                   const {privateKey, publicKey} = crypto.generateKeyPairSync('dsa', {
                      modulusLength: 2048,
                      publicKeyEncoding: {
                        type: 'spki',
-                       format: 'pem'
+                       format: 'pem',
                      },
                      privateKeyEncoding: {
                        type: 'pkcs8',
-                       format: 'pem'
-                     }
+                       format: 'pem',
+                     },
                    });
 
-                   console.log(privateKey, publicKey);
+                   // console.log(privateKey, publicKey);
 
-                   return {private: privateKey, public: publicKey}
+                   return {
+                     private: privateKey,
+                     public: publicKey,
+                   }
                  },
 
                });

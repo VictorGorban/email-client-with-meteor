@@ -73,39 +73,6 @@ Template.sidebar.helpers({
                          });
 
 Template.sidebar.events({
-                          'click #buttonViewSavedMail': function (e, t) {
-                            // e.preventDefault();
-                            $('#loadSavedFile').click();
-                          },
-                          'change #loadSavedFile': async function (e, t) {
-                            const fileToText = file => new Promise((resolve, reject) => {
-                              const reader = new FileReader();
-                              reader.onload = () => resolve(reader.result);
-                              reader.onerror = error => reject(error);
-                              reader.readAsText(file);
-                            });
-
-                            let file = e.currentTarget.files[0];
-                            let json = await fileToText(file);
-
-
-                            let email;
-                            try {
-                              email = JSON.parse(json);
-                            }catch (e) {
-                              showError('can\'t parse your message file. Maybe it\'s corrupted?');
-                              console.log(e);
-                              return;
-                            }
-
-                            console.log(email);
-                            // return;
-
-                            Session.set('mailToProcess', email);
-
-
-                            $('#processMailModal').modal();
-                          },
                           'click .email-box': function (e, t) {
                             e.preventDefault();
                             let boxName = e.currentTarget.text;

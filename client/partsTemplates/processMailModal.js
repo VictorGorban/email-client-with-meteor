@@ -1,54 +1,62 @@
 import '../commonFunctions'
 import {Meteor} from 'meteor/meteor';
 
+function showError(message) {
+  toastr.error(message);
+}
+
+function showSuccess(message) {
+  toastr.success(message);
+}
+
+function showInfo(message) {
+  toastr.success(message);
+}
+
 
 Template.processMailModal.events({
-                                   'click #deleteMail': function (e, t) {
-                                     e.preventDefault();
-                                     let seqno = Emails.findOne(Session.get('thisMailId')).seqno;
+                                   'click #browseProcessMail': function (e, t) {
+                                     $('#fileProcessMail').click();
+                                   },
 
-                                     if (Session.get('thisBox') != 'Trash') {
-                                       Meteor.call('moveEmailToOtherBox', Session.get('thisBox'), 'Trash', Session.get('thisAccount'), seqno, (err, res) => {
-                                         if (err) {
-                                           showError(err);
-                                         }
-                                         if (res) {
-                                           showSuccess(res)
-                                         }
+                                   'change #fileProcessMail': async function (e, t) {
+                                     {
+                                       const fileToText = file => new Promise((resolve, reject) => {
+                                         const reader = new FileReader();
+                                         reader.onload = () => resolve(reader.result);
+                                         reader.onerror = error => reject(error);
+                                         reader.readAsText(file);
                                        });
-                                     } else {
-                                       Meteor.call('deleteEmail', Session.get('thisBox'), Session.get('thisAccount'), seqno, (err, res) => {
-                                         if (err) {
-                                           showError(err);
-                                         }
-                                         if (res) {
-                                           showSuccess(res)
-                                         }
-                                       });
+
+                                       let file = e.currentTarget.files[0];
+                                       let ejson = await fileToText(file);
+
+
+                                       let email;
+                                       try {
+                                         email = EJSON.parse(ejson); // ejson - потому что нужен UTF8 array (binary)
+                                       } catch (e) {
+                                         showError('can\'t parse your message file. Maybe it\'s corrupted?');
+                                         console.log(e);
+                                         return;
+                                       }
+
+                                       // console.log(email);
+                                       // return;
+
+                                       Session.set('mailToProcess', email);
+
+
+                                       // $('#processMailModal').modal();
                                      }
                                    },
-                                   'click .folder-name': function (e, t) {
-                                     e.preventDefault();
-                                     console.log('in click .folder-name');
-
-                                     let seqno = Emails.findOne(Session.get('thisMailId')).seqno;
-                                     Meteor.call('moveEmailToOtherBox', Session.get('thisBox'), e.currentTarget.text, Session.get('thisAccount'), seqno, (err, res) => {
-                                       console.log('in moveEmailToOtherBox client callback')
-                                       if (err) {
-                                         showError(err);
-                                       }
-                                       if (res) {
-                                         showSuccess(res)
-                                       }
-                                     });
-                                   },
-                                   'click #saveMailButton': function (e, t) {
+                                   'click #saveProcessMail': function (e, t) {
                                      //  get email
 
-                                     let email = Emails.findOne(Session.get('thisMailId'));
+                                     let email = Session.get('mailToProcess');
 
                                      // to string
-                                     let json = JSON.stringify(email);
+                                     let json = EJSON.stringify(email);
 
                                      function download(filename, text) {
                                        var pom = document.createElement('a');
@@ -64,12 +72,192 @@ Template.processMailModal.events({
                                        }
                                      }
 
-                                     download('email', json)
+                                     download('email.txt', json)
 
+                                   },
+
+                                   'click #processSend': async (e, t) => {
+                                     e.preventDefault();
+
+
+                                     let options = Session.get('thisAccount');
+                                     let mail = Session.get('mailToProcess');
+                                     mail.from = Session.get('thisAccount').user;
+
+                                     console.log(mail);
+                                     // return;
+
+                                     Meteor.call('sendMessage', Session.get('thisBox'), options, mail, (err, res) => {
+                                       if (err) {
+                                         showError('can\'t submit the message. Check your credentials');
+                                       }
+                                       if (res) {
+                                         showSuccess(res);
+                                       }
+                                     });
+
+                                   },
+
+                                   'click #generateKeys': async (e, t) => {
+                                     e.preventDefault();
+
+                                     Meteor.call('generateKeys', (err, keys) => {
+                                       if (err) {
+                                         showError('can\'t generate the keys for some reason');
+                                       }
+                                       if (keys) {
+
+                                         Session.set('keys', keys);
+                                       }
+                                     });
+
+                                   },
+
+                                   'click #exportKeys': async (e, t) => {
+                                     e.preventDefault();
+                                     let keys = Session.get('keys');
+
+                                     let json = EJSON.stringify(keys);
+
+                                     function download(filename, text) {
+                                       var pom = document.createElement('a');
+                                       pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                                       pom.setAttribute('download', filename);
+
+                                       if (document.createEvent) {
+                                         var event = document.createEvent('MouseEvents');
+                                         event.initEvent('click', true, true);
+                                         pom.dispatchEvent(event);
+                                       } else {
+                                         pom.click();
+                                       }
+                                     }
+
+                                     download('keys.txt', json)
+                                   },
+
+                                   'click #importKeys': async (e, t) => {
+                                     e.preventDefault();
+
+                                     $('#importKeysFile').click();
+                                   },
+
+                                   'change #rsaPublicKey': function (e, t) {
+                                     let key = e.currentTarget.value;
+                                     let keys = Session.get('keys');
+                                     if (!keys) {
+                                       keys = {
+                                         rsa: {},
+                                         dsa: {},
+                                       };
+                                     } else {
+                                       if (!keys.rsa) {
+                                         keys.rsa = {};
+                                       }
+                                       if (!keys.dsa) {
+                                         keys.dsa = {};
+                                       }
+                                     }
+                                     
+                                     keys.rsa.public = key;
+                                     Session.set('keys', keys)
+                                   },
+
+                                   'change #dsaPublicKey': function (e, t) {
+                                     let key = e.currentTarget.value;
+                                     let keys = Session.get('keys');
+                                     if (!keys) {
+                                       keys = {
+                                         rsa: {},
+                                         dsa: {},
+                                       };
+                                     } else {
+                                       if (!keys.rsa) {
+                                         keys.rsa = {};
+                                       }
+                                       if (!keys.dsa) {
+                                         keys.dsa = {};
+                                       }
+                                     }
+
+                                     keys.dsa.public = key;
+                                     Session.set('keys', keys)
+                                   },
+
+                                   'change #rsaPrivateKey': function (e, t) {
+                                     let key = e.currentTarget.value;
+                                     let keys = Session.get('keys');
+                                     if (!keys) {
+                                       keys = {
+                                         rsa: {},
+                                         dsa: {},
+                                       };
+                                     } else {
+                                       if (!keys.rsa) {
+                                         keys.rsa = {};
+                                       }
+                                       if (!keys.dsa) {
+                                         keys.dsa = {};
+                                       }
+                                     }
+
+                                     keys.rsa.private = key;
+                                     Session.set('keys', keys)
+                                   },
+
+                                   'change #dsaPrivateKey': function (e, t) {
+                                     let key = e.currentTarget.value;
+                                     let keys = Session.get('keys');
+                                     if (!keys) {
+                                       keys = {
+                                         rsa: {},
+                                         dsa: {},
+                                       };
+                                     } else {
+                                       if (!keys.rsa) {
+                                         keys.rsa = {};
+                                       }
+                                       if (!keys.dsa) {
+                                         keys.dsa = {};
+                                       }
+                                     }
+
+                                     keys.dsa.private = key;
+                                     Session.set('keys', keys)
+                                   },
+  
+                                   'change #importKeysFile': async function (e, t) {
+                                     {
+                                       const fileToText = file => new Promise((resolve, reject) => {
+                                         const reader = new FileReader();
+                                         reader.onload = () => resolve(reader.result);
+                                         reader.onerror = error => reject(error);
+                                         reader.readAsText(file);
+                                       });
+
+                                       let file = e.currentTarget.files[0];
+                                       let ejson = await fileToText(file);
+
+
+                                       let keys;
+                                       try {
+                                         keys = EJSON.parse(ejson); // ejson на всякий случай
+                                       } catch (e) {
+                                         showError('can\'t parse your keys file. Maybe it\'s corrupted?');
+                                         console.log(e);
+                                         return;
+                                       }
+
+
+                                       Session.set('keys', keys);
+                                     }
                                    },
                                  });
 
 Template.processMailModal.helpers({
+                                    keys() {
+                                      return Session.get('keys');
+                                    },
                                     thisMail() {
                                       return Session.get('mailToProcess');
                                     },
@@ -91,6 +279,7 @@ Template.processMailModal.helpers({
                                       if (!attachment.content) {
                                         return;
                                       }
+
                                       var getObjectUrl, getDownloadLink;
 
                                       getObjectUrl = function (arr, fileName, mimeType) {
@@ -100,9 +289,6 @@ Template.processMailModal.helpers({
                                         });
                                         url = window.URL.createObjectURL(blob);
                                         return url;
-                                        /*setTimeout(function() {
-                                         return window.URL.revokeObjectURL(url);
-                                         }, 1000);*/
                                       };
 
 

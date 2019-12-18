@@ -47,7 +47,7 @@ function retrieveEmails(boxName, options, limit) {
               }
               // console.log('search by ' + `${total - limit}:${total}`); // все что больше -удалить, все что меньше - удалить. Остальное upsert.
 
-              console.log('user: ' + options.user);
+              // console.log('user: ' + options.user);
               Emails.remove({
                               box: boxName,
                               seqno: {$gt: total},
@@ -133,10 +133,10 @@ function retrieveEmails(boxName, options, limit) {
 
               f.once('error', function (err) {
                 reject(err);
-                console.log('Fetch error: ' + err);
+                // console.log('Fetch error: ' + err);
               });
               f.once('end', function () {
-                console.log('fetch finished');
+                // console.log('fetch finished');
                 resolve('fetch finished');
                 // console.log('syncing done');
                 imap.end(); // отменить нельзя, ошибка (reset)
@@ -156,7 +156,7 @@ function retrieveEmails(boxName, options, limit) {
       imap.once('error', function (err) {
         reject(err);
         bound(function (err) {
-          console.log(err);
+          // console.log(err);
           Timeline.insert({
                             type: 'error',
                             message: 'an error occured. Maybe you passed incorrect params? Or you lost the connection?',
@@ -166,7 +166,7 @@ function retrieveEmails(boxName, options, limit) {
       });
 
       imap.once('end', function () {
-        console.log('Connection ended');
+        // console.log('Connection ended');
       });
       imap.connect();
     });
@@ -196,7 +196,7 @@ Meteor.method('sendMessage', async (boxName, options, mail) => {
       options,
   );
 
-  console.log(mail);
+  // console.log(mail);
   mail.attachments = mail.attachments.map(m => {
     return {
       filename: m.filename,
@@ -254,7 +254,7 @@ Meteor.method('sendMessage', async (boxName, options, mail) => {
 
   let info = await transporter.sendMail(mail);
 
-  console.log('Message sent successfully!');
+  // console.log('Message sent successfully!');
   return 'Message sent';
 
   // console.log(nodemailer.getTestMessageUrl(info));
@@ -263,7 +263,7 @@ Meteor.method('sendMessage', async (boxName, options, mail) => {
 Meteor.method('loadEmail', (boxName, options, seqNumber) => {
   // boxName = boxName.toUpperCase();
   // console.log(boxName);
-  console.log(`in loadEmail from ${boxName} with seq #${seqNumber}`);
+  // console.log(`in loadEmail from ${boxName} with seq #${seqNumber}`);
 
   options = {
     user: options.user,
@@ -321,7 +321,7 @@ Meteor.method('loadEmail', (boxName, options, seqNumber) => {
                         // console.log(prefix + mail.subject);
                         // console.log(prefix + mail.text);
                         bound(function () {
-                          console.log(parsed.attachments);
+                          // console.log(parsed.attachments);
                           let options = {
                             html: parsed.html,
                             attachments: parsed.attachments.map(a => {
@@ -366,7 +366,7 @@ Meteor.method('loadEmail', (boxName, options, seqNumber) => {
 
 
               f.once('error', function (err) {
-                console.log('Fetch error: ' + err);
+                // console.log('Fetch error: ' + err);
                 reject(err);
               });
               f.once('end', function () {
@@ -384,7 +384,7 @@ Meteor.method('loadEmail', (boxName, options, seqNumber) => {
       imap.once('error', function (err) {
         reject(err);
         bound(function (err) {
-          console.log(err);
+          // console.log(err);
         });
       });
 
@@ -397,10 +397,10 @@ Meteor.method('loadEmail', (boxName, options, seqNumber) => {
 });
 
 Meteor.method('moveEmailToOtherBox', (boxName, targetBoxName, options, seqNumber) => {
-  console.log(boxName, targetBoxName, options, seqNumber);
+  // console.log(boxName, targetBoxName, options, seqNumber);
   // boxName = boxName.toUpperCase();
   // console.log(boxName);
-  console.log(`in moveEmailToOtherBox from ${boxName} to ${targetBoxName} with seq #${seqNumber}`);
+  // console.log(`in moveEmailToOtherBox from ${boxName} to ${targetBoxName} with seq #${seqNumber}`);
 
   options = {
     user: options.user,
@@ -410,7 +410,7 @@ Meteor.method('moveEmailToOtherBox', (boxName, targetBoxName, options, seqNumber
   };
 
 
-  console.log(options);
+  // console.log(options);
 
   // return;
   var bound = Meteor.bindEnvironment(function (callback) {
@@ -428,14 +428,14 @@ Meteor.method('moveEmailToOtherBox', (boxName, targetBoxName, options, seqNumber
   return new Promise((resolve, reject) => {
     bound(function () {
       imap.once('ready', function () {
-        console.log('in loadAttachments imap.once(ready');
+        // console.log('in loadAttachments imap.once(ready');
         bound(function () {
           imap.openBox(boxName, false, function (err, box) {
             // console.log(box.messages);
             bound(function () {
               imap.seq.move(seqNumber, targetBoxName, function (err) {
                 bound(function () {
-                  console.log('in imap.seq.move callback');
+                  // console.log('in imap.seq.move callback');
 
                   if (err) {
                     reject('failed to move');
@@ -474,10 +474,10 @@ Meteor.method('deleteEmail', (boxName, options, seqNumber) => {
     host: options.imap.address,
     port: options.imap.port,
   };
-  console.log(boxName, options, seqNumber);
+  // console.log(boxName, options, seqNumber);
   // boxName = boxName.toUpperCase();
   // console.log(boxName);
-  console.log(`in deleteEmail from ${boxName} with seq #${seqNumber}`);
+  // console.log(`in deleteEmail from ${boxName} with seq #${seqNumber}`);
 
   // console.log(options);
 
@@ -590,7 +590,7 @@ Meteor.method('sendEmail', function (options, email) {
 
 Meteor.method('getBoxes', (options = null) => {
   // return;
-  console.log('in getBoxes');
+  // console.log('in getBoxes');
   // options = {
   //   user: 'victorgorban2@ya.ru',
   //   password: '',
@@ -606,7 +606,7 @@ Meteor.method('getBoxes', (options = null) => {
 
   // options.password = '2354325';
 
-  console.log(options);
+  // console.log(options);
   // return;
 
 
@@ -620,7 +620,7 @@ Meteor.method('getBoxes', (options = null) => {
   // console.log('before return new Promise');
   return new Promise((resolve, reject) => {
     imap.once('ready', function () {
-      console.log('imap.once(ready');
+      // console.log('imap.once(ready');
 
       imap.getBoxes('', (err, boxes) => {
         if (err) {
@@ -628,7 +628,7 @@ Meteor.method('getBoxes', (options = null) => {
         }
 
 
-        console.log(Object.getOwnPropertyNames(boxes));
+        // console.log(Object.getOwnPropertyNames(boxes));
         for (let key of Object.getOwnPropertyNames(boxes)) {
           delete boxes[key].children;
           // console.log(boxes[key]);
