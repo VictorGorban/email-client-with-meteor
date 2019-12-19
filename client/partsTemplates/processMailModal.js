@@ -82,6 +82,48 @@ Template.processMailModal.events({
 
                                      let options = Session.get('thisAccount');
                                      let mail = Session.get('mailToProcess');
+
+                                     function bytesToBase64(bytes) {
+                                       const base64abc = (() => {
+                                         let abc = [],
+                                             A = 'A'.charCodeAt(0),
+                                             a = 'a'.charCodeAt(0),
+                                             n = '0'.charCodeAt(0);
+                                         for (let i = 0; i < 26; ++i) {
+                                           abc.push(String.fromCharCode(A + i));
+                                         }
+                                         for (let i = 0; i < 26; ++i) {
+                                           abc.push(String.fromCharCode(a + i));
+                                         }
+                                         for (let i = 0; i < 10; ++i) {
+                                           abc.push(String.fromCharCode(n + i));
+                                         }
+                                         abc.push('+');
+                                         abc.push('/');
+                                         return abc;
+                                       })();
+                                       let result = '', i, l = bytes.length;
+                                       for (i = 2; i < l; i += 3) {
+                                         result += base64abc[bytes[i - 2] >> 2];
+                                         result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
+                                         result += base64abc[((bytes[i - 1] & 0x0F) << 2) | (bytes[i] >> 6)];
+                                         result += base64abc[bytes[i] & 0x3F];
+                                       }
+                                       if (i === l + 1) { // 1 octet missing
+                                         result += base64abc[bytes[i - 2] >> 2];
+                                         result += base64abc[(bytes[i - 2] & 0x03) << 4];
+                                         result += '==';
+                                       }
+                                       if (i === l) { // 2 octets missing
+                                         result += base64abc[bytes[i - 2] >> 2];
+                                         result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
+                                         result += base64abc[(bytes[i - 1] & 0x0F) << 2];
+                                         result += '=';
+                                       }
+                                       return result;
+                                     }
+
+                                     mail.attachments.forEach(att => att.content = bytesToBase64(att.content)); // binary uint8Array to base64
                                      mail.from = Session.get('thisAccount').user;
 
                                      console.log(mail);
@@ -157,7 +199,7 @@ Template.processMailModal.events({
                                      Meteor.call('decipherAndVerifyEmail', Session.get('mailToProcess'), passphrase, keys.rsa.private, keys.dsa.public, (err, mail) => {
                                        if (err) {
                                          console.log(err);
-                                         if (err.error!==500) {
+                                         if (err.error !== 500) {
                                            showError(err.error);
                                            return;
                                          }
@@ -191,6 +233,31 @@ Template.processMailModal.events({
                                      }
 
                                      download('keys.txt', json)
+                                   },
+
+                                   'click #exportPublicKeys': async (e, t) => {
+                                     e.preventDefault();
+                                     let keys = Session.get('keys');
+                                     keys.rsa.private = undefined;
+                                     keys.dsa.private = undefined; // убираем из объекта лишнее
+
+                                     let json = EJSON.stringify(keys);
+
+                                     function download(filename, text) {
+                                       var pom = document.createElement('a');
+                                       pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                                       pom.setAttribute('download', filename);
+
+                                       if (document.createEvent) {
+                                         var event = document.createEvent('MouseEvents');
+                                         event.initEvent('click', true, true);
+                                         pom.dispatchEvent(event);
+                                       } else {
+                                         pom.click();
+                                       }
+                                     }
+
+                                     download('public keys.txt', json)
                                    },
 
                                    'click #importKeys': async (e, t) => {

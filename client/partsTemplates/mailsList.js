@@ -110,7 +110,7 @@ Template.mailsList.onCreated(function () {
   Meteor.subscribe('timeline.all');
 
   syncEmailsAndBoxes();
-  setInterval(syncEmailsAndBoxes, 60 * 1000);
+  setInterval(syncEmailsAndBoxes, 60 * 1000 * 2); // синхронизация каждые n минут
 
 
   Tracker.autorun(() => {

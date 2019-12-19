@@ -181,6 +181,9 @@ async function sendOutbox(options) {
   // connection, send
 }
 
+/**
+ * mail.attachments.$.content: base64
+ */
 Meteor.method('sendMessage', async (boxName, options, mail) => {
   options = {
     host: options.smtp.address,

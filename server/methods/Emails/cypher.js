@@ -48,7 +48,7 @@ Meteor.methods({
 
                    // для каждого приложения, шифруем содержимое
                    for (let i = 0; i < email.attachments.length; i++) {
-                     email.attachments[i].content = doEncryptAndSign(email.attachments[i].content, passphrase);
+                     email.attachments[i].content = doEncryptAndSign(email.attachments[i].content);
                    }
 
                    // а еще sign
@@ -79,6 +79,8 @@ Meteor.methods({
                      let signature = obj.signature;
                      let verified = verify.verify(dsaPublicKey, signature, 'hex');
 
+                     // для изображений false? Наверное, потому что я читаю их как текст
+
                      if (!verified) {
                        throw new Meteor.Error('Verify failed.');
                      }
@@ -93,7 +95,7 @@ Meteor.methods({
 
                    // для каждого приложения, дешифруем содержимое
                    for (let i = 0; i < email.attachments.length; i++) {
-                     email.attachments[i].content = doDecryptAndVerify(email.attachments[i].content, passphrase);
+                     email.attachments[i].content = doDecryptAndVerify(email.attachments[i].content);
                    }
 
                    return email;
