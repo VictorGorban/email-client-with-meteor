@@ -235,6 +235,55 @@ Template.processMailModal.events({
                                      download('keys.txt', json)
                                    },
 
+                                   'click #exportKeysToDecipherAndVerify': async (e, t) => {
+                                     e.preventDefault();
+                                     let keys = Session.get('keys');
+                                     keys.rsa.public = undefined;
+                                     keys.dsa.private = undefined;
+
+                                     let json = EJSON.stringify(keys);
+
+                                     function download(filename, text) {
+                                       var pom = document.createElement('a');
+                                       pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                                       pom.setAttribute('download', filename);
+
+                                       if (document.createEvent) {
+                                         var event = document.createEvent('MouseEvents');
+                                         event.initEvent('click', true, true);
+                                         pom.dispatchEvent(event);
+                                       } else {
+                                         pom.click();
+                                       }
+                                     }
+
+                                     download('keys.txt', json)
+                                   },
+                                   'click #exportKeysToCypherAndSign': async (e, t) => {
+                                     e.preventDefault();
+                                     let keys = Session.get('keys');
+                                     keys.rsa.private = undefined;
+                                     keys.dsa.public = undefined;
+
+                                     let json = EJSON.stringify(keys);
+
+                                     function download(filename, text) {
+                                       var pom = document.createElement('a');
+                                       pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                                       pom.setAttribute('download', filename);
+
+                                       if (document.createEvent) {
+                                         var event = document.createEvent('MouseEvents');
+                                         event.initEvent('click', true, true);
+                                         pom.dispatchEvent(event);
+                                       } else {
+                                         pom.click();
+                                       }
+                                     }
+
+                                     download('keys.txt', json)
+                                   },
+
                                    'click #exportPublicKeys': async (e, t) => {
                                      e.preventDefault();
                                      let keys = Session.get('keys');

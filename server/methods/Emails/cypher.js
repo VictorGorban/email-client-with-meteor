@@ -87,15 +87,20 @@ Meteor.methods({
 
                      console.log('wow, decrypted');
 
-                     return decrypted;
+                     return decrypted; // string
                    };
 
 
                    email.html = doDecryptAndVerify(email.html);
 
                    // для каждого приложения, дешифруем содержимое
+
+                   function strToUint8Array (str) {
+                     return new TextEncoder().encode(str); // supports only utf8
+                   }
+
                    for (let i = 0; i < email.attachments.length; i++) {
-                     email.attachments[i].content = doDecryptAndVerify(email.attachments[i].content);
+                     email.attachments[i].content = strToUint8Array(doDecryptAndVerify(email.attachments[i].content));
                    }
 
                    return email;
