@@ -1,10 +1,18 @@
 let crypto = require('crypto')
 
 Meteor.methods({
-                 cypherAndSignEmail(email, passphrase, rsaPublicKey, rsaPrivateKey, dsaPrivateKey) {
+                 cypherAndSignEmail(email, passphrase, rsaPublicKey, dsaPrivateKey, dsaPublicKey) {
                    const algorithm = 'aes-192-cbc';
 
-                   let doEncrypt = function (text) {
+                   let doEncryptAndSign = function (text) {
+                     // create sign from text
+                     let signature;
+                     const signer = crypto.createSign('SHA1');
+                     signer.write(text);
+                     signer.end();
+                     signature = signer.sign(dsaPrivateKey, 'hex');
+
+
                      let iv = crypto.randomBytes(16); // Initialization vector.
                      iv = new Uint8Array(iv);
                      const key = crypto.scryptSync(passphrase, crypto.randomBytes(4), 24); // соль тут для галочки
@@ -23,24 +31,24 @@ Meteor.methods({
                      encrypted += cipher.final('hex'); // шифруем как hex
 
 
-
                      let encryptedResult = {
                        iv: new Uint8Array(iv),
                        content: encrypted,
                        encryptedKey: encryptedKey,
+                       signature: signature,
                      };
 
-                    return encryptedResult;
+                     return encryptedResult;
                    };
 
 
-                   email.html = doEncrypt(email.html);
+                   email.html = doEncryptAndSign(email.html);
 
                    // console.log(email.html);
 
                    // для каждого приложения, шифруем содержимое
                    for (let i = 0; i < email.attachments.length; i++) {
-                     email.attachments[i].content = doEncrypt(email.attachments[i].content, passphrase);
+                     email.attachments[i].content = doEncryptAndSign(email.attachments[i].content, passphrase);
                    }
 
                    // а еще sign
@@ -54,23 +62,26 @@ Meteor.methods({
                  decipherAndVerifyEmail(email, passphrase, rsaPrivateKey, dsaPublicKey) {
                    const algorithm = 'aes-192-cbc';
 
-                   let doDecrypt = function (obj) {
+                   let doDecryptAndVerify = function (obj) {
                      const iv = obj.iv; // Initialization vector.
                      const encryptedKey = obj.encryptedKey;
 
                      const key = crypto.privateDecrypt(rsaPrivateKey, Buffer.from(encryptedKey));
 
-                     console.log('decrypting...');
-                     console.log('iv: ' + iv);
-                     console.log('key: ' + key);
-
-
                      const decipher = crypto.createDecipheriv(algorithm, key, iv);
 
                      let decrypted = decipher.update(obj.content, 'hex', 'utf8');
                      decrypted += decipher.final('utf8'); // дешифруем как utf8
-                     // console.log(encrypted);
 
+                     const verify = crypto.createVerify('SHA1');
+                     verify.write(decrypted);
+                     verify.end();
+                     let signature = obj.signature;
+                     let verified = verify.verify(dsaPublicKey, signature, 'hex');
+
+                     if (!verified) {
+                       throw new Meteor.Error('Verify failed.');
+                     }
 
                      console.log('wow, decrypted');
 
@@ -78,17 +89,14 @@ Meteor.methods({
                    };
 
 
-                   email.html = doDecrypt(email.html);
+                   email.html = doDecryptAndVerify(email.html);
 
                    // для каждого приложения, дешифруем содержимое
                    for (let i = 0; i < email.attachments.length; i++) {
-                     email.attachments[i].content = doDecrypt(email.attachments[i].content, passphrase);
+                     email.attachments[i].content = doDecryptAndVerify(email.attachments[i].content, passphrase);
                    }
 
-                   // а еще sign
                    return email;
-                   // try to decrypt?
-
 
                  },
 

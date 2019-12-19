@@ -128,7 +128,7 @@ Template.processMailModal.events({
                                        return;
                                      }
 
-                                     Meteor.call('cypherAndSignEmail', Session.get('mailToProcess'), passphrase, keys.rsa.public, keys.rsa.private, keys.dsa.private, (err, mail) => {
+                                     Meteor.call('cypherAndSignEmail', Session.get('mailToProcess'), passphrase, keys.rsa.public, keys.dsa.private, keys.dsa.public, (err, mail) => {
                                        if (err) {
                                          showError('can\'t cypher you mail');
                                        }
@@ -156,6 +156,11 @@ Template.processMailModal.events({
 
                                      Meteor.call('decipherAndVerifyEmail', Session.get('mailToProcess'), passphrase, keys.rsa.private, keys.dsa.public, (err, mail) => {
                                        if (err) {
+                                         console.log(err);
+                                         if (err.error!==500) {
+                                           showError(err.error);
+                                           return;
+                                         }
                                          showError('can\'t decipher you mail');
                                        }
                                        if (mail) {
