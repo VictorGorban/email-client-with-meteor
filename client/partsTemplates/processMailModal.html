@@ -31,7 +31,7 @@
               </div>
             </div>
             <div class="view-mail">
-              {{{html}}}
+              {{{getHtml html}}}
             </div>
             {{#if hasAttachment thisMail}}
               <div class="attachment-mail">
@@ -114,22 +114,23 @@
                   </div>
                 </div>
               </div>
-              <div class="container col-md-10">
-                <button type="button" id="exportKeys" class="btn btn-send" style="">
-                  <i class="fa fa-save"></i> Export keys
-                </button>
-
-                <button type="button" id="importKeys" class="btn btn-send" style="">
-                  <i class="fa fa-file"></i> Import keys
-                </button>
-                <input type="file" id="importKeysFile" class="hidden">
-
-                <button type="button" id="generateKeys" class="btn btn-send" style="">
-                  <i class="fa fa-file"></i> Generate keys
-                </button>
-              </div>
             </form>
           </div>
+          <div class="container col-md-10">
+            <button type="button" id="exportKeys" class="btn btn-send" style="">
+              <i class="fa fa-save"></i> Export keys
+            </button>
+
+            <button type="button" id="importKeys" class="btn btn-send" style="">
+              <i class="fa fa-file"></i> Import keys
+            </button>
+            <input type="file" id="importKeysFile" class="hidden">
+
+            <button type="button" id="generateKeys" class="btn btn-send" style="">
+              <i class="fa fa-file"></i> Generate keys
+            </button>
+          </div>
+
           <br>
           <br>
         </div>

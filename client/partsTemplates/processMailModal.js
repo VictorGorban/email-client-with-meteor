@@ -113,6 +113,58 @@ Template.processMailModal.events({
 
                                    },
 
+                                   'click #cypherProcessMail': async (e, t) => {
+                                     e.preventDefault();
+
+
+                                     let passphrase = $('#passPhrase').val().trim();
+                                     if (!passphrase) {
+                                       showError('Please set the pass phrase');
+                                       return;
+                                     }
+                                     let keys = Session.get('keys');
+                                     if (!keys) {
+                                       showError('Looks like you don\'t have keys. Import them or generate');
+                                       return;
+                                     }
+
+                                     Meteor.call('cypherAndSignEmail', Session.get('mailToProcess'), passphrase, keys.rsa.public, keys.dsa.private, (err, mail) => {
+                                       if (err) {
+                                         showError('can\'t cypher you mail');
+                                       }
+                                       if (mail) {
+                                         Session.set('mailToProcess', mail);
+                                       }
+                                     });
+
+                                   },
+
+                                   'click #decipherProcessMail': async (e, t) => {
+                                     e.preventDefault();
+
+
+                                     let passphrase = $('#passPhrase').val().trim();
+                                     if (!passphrase) {
+                                       showError('Please set the pass phrase');
+                                       return;
+                                     }
+                                     let keys = Session.get('keys');
+                                     if (!keys) {
+                                       showError('Looks like you don\'t have keys. Import them or generate');
+                                       return;
+                                     }
+
+                                     Meteor.call('decipherAndVerifyEmail', Session.get('mailToProcess'), passphrase, keys.rsa.private, keys.dsa.public, (err, mail) => {
+                                       if (err) {
+                                         showError('can\'t decipher you mail');
+                                       }
+                                       if (mail) {
+                                         Session.set('mailToProcess', mail);
+                                       }
+                                     });
+
+                                   },
+
                                    'click #exportKeys': async (e, t) => {
                                      e.preventDefault();
                                      let keys = Session.get('keys');
@@ -158,7 +210,7 @@ Template.processMailModal.events({
                                          keys.dsa = {};
                                        }
                                      }
-                                     
+
                                      keys.rsa.public = key;
                                      Session.set('keys', keys)
                                    },
@@ -225,7 +277,7 @@ Template.processMailModal.events({
                                      keys.dsa.private = key;
                                      Session.set('keys', keys)
                                    },
-  
+
                                    'change #importKeysFile': async function (e, t) {
                                      {
                                        const fileToText = file => new Promise((resolve, reject) => {
@@ -260,6 +312,13 @@ Template.processMailModal.helpers({
                                     },
                                     thisMail() {
                                       return Session.get('mailToProcess');
+                                    },
+
+                                    getHtml(html) {
+                                      if (typeof html == 'object') {
+                                        return EJSON.stringify(html);
+                                      }
+                                      return html;
                                     },
 
                                     hasAttachment: function (email) {

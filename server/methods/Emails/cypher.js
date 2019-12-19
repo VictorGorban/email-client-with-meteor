@@ -1,43 +1,122 @@
 let crypto = require('crypto')
 
 Meteor.methods({
-                 cypherAndSignEmail(emailId, passphrase, rsaPublicKey, dsaPrivateKey) {
-                   let email = Emails.findOne(emailId);
-                   if (!email) {
-                     return new Meteor.Error('email not found');
-                   }
-                   passphrase = crypto.publicEncrypt(rsaPublicKey, Buffer.from(passphrase));
+                 cypherAndSignEmail(email, passphrase, rsaPublicKey, dsaPrivateKey) {
+                   const algorithm = 'aes-192-cbc';
 
-                   let html = email.html;
-                   let attachments = email.attachments;
-                   attachments = JSON.stringify(attachments);
+                   let doEncrypt = function (text) {
+                     const iv = crypto.randomBytes(16); // Initialization vector.
+                     const key = crypto.scryptSync(passphrase, crypto.randomBytes(4), 24); // соль тут для галочки
+
+                     console.log('key: ' + key);
+
+                     // return ;
+                     let encryptedKey = crypto.publicEncrypt(rsaPublicKey, Buffer.from(key)); // потом мы шифруем сообщение этим зашифрованным ключом
+                     const cipher = crypto.createCipheriv(algorithm, key, iv);
+
+                     console.log('encrypting...');
+                     console.log('iv: ' + new Uint8Array(iv));
+                     console.log('key: ' + key.toString());
+
+                     let encrypted = cipher.update(text, 'utf8', 'hex');
+                     encrypted += cipher.final('hex'); // шифруем как hex
+
+                     let doDecrypt = function (obj) {
+                       const iv = obj.iv; // Initialization vector.
+                       const encryptedKey = obj.encryptedKey;
+
+
+                       console.log('decrypting...');
+                       console.log('iv: ' + iv);
+                       console.log('key: ' + key);
+
+
+                       const decipher = crypto.createDecipheriv(algorithm, key, iv);
+
+                       let decrypted = decipher.update(obj.content, 'hex', 'utf8');
+                       decrypted += decipher.final('utf8'); // дешифруем как utf8
+                       // console.log(encrypted);
+
+
+                       console.log('wow, decrypted');
+
+                       return decrypted;
+                     };
+
+                     let encryptedResult = {
+                       iv: iv,
+                       content: encrypted,
+                       encryptedKey: encryptedKey,
+                     };
+
+                     let decryptedResult = doDecrypt(encryptedResult);
+
+                     return decryptedResult;
+                   };
+
+
+                   email.html = doEncrypt(email.html);
+
+                   // console.log(email.html);
+
+                   // для каждого приложения, шифруем содержимое
+                   // for (let i = 0; i < email.attachments.length; i++) {
+                   //   email.attachments[i].content = doCypher(email.attachments[i].content, passphrase);
+                   // }
+
+                   // а еще sign
+
+                   return email;
+                   // try to decrypt?
+
+
+                 },
+
+                 decipherAndVerifyEmail(email, passphrase, rsaPrivateKey, dsaPublicKey) {
+                   // console.log(rsaPrivateKey.length);
+                   // проблема: как юзать rsa для шифрования ключа aes, если ключ при public и private получается разный? И при этом какой смысл шифровать голую passPhrase, если public key и так есть? Тогда при наличии public мы дешифруем вообще все.
+                   // если просто шифровать в 2 уровня: message -> aes(passphrase) -> res(public), то все понятно. res(private)-> aes(passphrase) -> message
+                   // шифровать ключ aes? passphrase -> res(public) -> aes. passphrase-> res(private) -> aes  :не работает.
+
 
                    const algorithm = 'aes-192-cbc';
-                   const password = 'Password used to generate key';
 // Use the async `crypto.scrypt()` instead.
-                   const key = crypto.scryptSync(passphrase, 'salt', 24);
 // Use `crypto.randomBytes` to generate a random iv instead of the static iv
 // shown here.
-                   const iv = crypto.randomBytes(16); // Initialization vector.
 
-                   const cipher = crypto.createCipheriv(algorithm, key, iv);
+                   let doDecipher = function (obj) {
+                     const iv = obj.iv; // Initialization vector.
+                     const encryptedKey = obj.encryptedKey;
+
+                     const key = crypto.privateDecrypt(rsaPrivateKey, Buffer.from(encryptedKey)).toString();
+
+                     // return ;
+
+                     console.log('decrypting...');
+                     console.log('iv: ' + iv);
+                     console.log('key: ' + key);
 
 
-                   let encrypted = cipher.update(html, 'utf8', 'hex');
-                   encrypted += cipher.final('hex');
-                   console.log(encrypted);
+                     return;
+                     const decipher = crypto.createDecipheriv(algorithm, key, iv);
 
+                     let decrypted = decipher.update(obj.content, 'hex', 'utf8');
+                     decrypted += decipher.final('utf8'); // дешифруем как utf8
+                     // console.log(encrypted);
 
-                   return 'encrypted';
+                     return decrypted;
+                   };
 
-                   email.html = html;
-                   email.attachments = attachments;
-                   email.iv = iv;
+                   email.html = doDecipher(email.html);
+
+                   // для каждого приложения, дешифруем содержимое
+                   // for (let i = 0; i < email.attachments.length; i++) {
+                   //   email.attachments[i].content = doDecipher(email.attachments[i].content, passphrase);
+                   // }
 
                    // а еще sign
                    return email;
                    // try to decrypt?
-// Prints: e5f79c5915c02171eec6b212d5520d44480993d7d622a7c4c2da32f6efda0ffa
 
 
                  },
