@@ -93,7 +93,7 @@ Template.mailsList.onCreated(function () {
     Session.set('thisAccount', thisAccount);
 
 
-    let boxes = localStorage.getItem('boxes') || {};
+    let boxes = localStorage.getItem('boxes') || '{}';
     if (boxes == 'undefined') {
         boxes = '{}';
     }
@@ -153,7 +153,10 @@ Template.mailsList.helpers({
         // return Template.mailsList.emails;
         // var folder = Session.get('thisFolder');
         // let box = 'inbox';
-        let user = Session.get('thisAccount').user;
+        let user = Session.get('thisAccount');
+        if (!user)
+            return;
+        user = user.user;
         if (!user) {
             return;
         }

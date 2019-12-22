@@ -89,13 +89,22 @@ Template.header.events({
                                break;
                              }
                            }
-                           Session.set('thisAccount', accounts[accounts.length - 1]);
-                           localStorage.setItem('thisAccount', JSON.stringify(accounts[accounts.length - 1]));
+                           if(accounts.length>0){
+                             Session.set('thisAccount', accounts[accounts.length - 1]);
+                             localStorage.setItem('thisAccount', JSON.stringify(accounts[accounts.length - 1]));
+                           }else{
+                             Session.set('thisAccount', null);
+                             localStorage.setItem('thisAccount', null);
+                           }
+
                            Session.set('accounts', accounts);
                            localStorage.setItem('accounts', JSON.stringify(accounts));
 
                            Session.set('thisBox', 'INBOX');
                            localStorage.setItem('thisBox', 'INBOX');
+
+                           Session.set('boxes', []);
+                           localStorage.setItem('boxes', JSON.stringify([]));
                            syncEmailsAndBoxes();
                          },
 
