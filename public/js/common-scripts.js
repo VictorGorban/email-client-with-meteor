@@ -1,17 +1,17 @@
 /*---LEFT BAR ACCORDION----*/
-$(function() {
-    $('#nav-accordion').dcAccordion({
-        eventType: 'click',
-        autoClose: true,
-        saveState: true,
-        disableLink: true,
-        speed: 'slow',
-        showCount: false,
-        autoExpand: true,
-//        cookie: 'dcjq-accordion-1',
-        classExpand: 'dcjq-current-parent'
-    });
-});
+// $(function() {
+//     $('#nav-accordion').dcAccordion({
+//         eventType: 'click',
+//         autoClose: true,
+//         saveState: true,
+//         disableLink: true,
+//         speed: 'slow',
+//         showCount: false,
+//         autoExpand: true,
+// //        cookie: 'dcjq-accordion-1',
+//         classExpand: 'dcjq-current-parent'
+//     });
+// });
 
 // // right slidebar
 // // если будет, надо раскомментить
@@ -127,13 +127,13 @@ var Script = function () {
     });
 
 
-//    tool tips
+// //    tool tips
+//
+//     $('.tooltips').tooltip();
+//
+// //    popovers
 
-    $('.tooltips').tooltip();
-
-//    popovers
-
-    $('.popovers').popover();
+    // $('.popovers').popover();
 
 
 

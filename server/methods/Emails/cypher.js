@@ -1,162 +1,161 @@
 let crypto = require('crypto')
 
 Meteor.methods({
-                 cypherAndSignEmail(email, passphrase, rsaPublicKey, dsaPrivateKey, dsaPublicKey) {
-                   const algorithm = 'aes-192-cbc';
+    cypherAndSignEmail(email, passphrase, rsaPublicKey, dsaPrivateKey) {
+        const algorithm = 'aes-192-cbc';
 
-                   let doEncryptAndSign = function (text) {
-                     // create sign from text
-                     let signature;
-                     const signer = crypto.createSign('SHA1');
-                     signer.write(text);
-                     signer.end();
-                     signature = signer.sign(dsaPrivateKey, 'hex');
+        let iv = crypto.randomBytes(16); // Initialization vector.
+        iv = new Uint8Array(iv);
+        const key = crypto.scryptSync(passphrase, crypto.randomBytes(4), 24); // соль тут для галочки
 
+        console.log('key: ' + key);
 
-                     let iv = crypto.randomBytes(16); // Initialization vector.
-                     iv = new Uint8Array(iv);
-                     const key = crypto.scryptSync(passphrase, crypto.randomBytes(4), 24); // соль тут для галочки
+        let encryptedKey = crypto.publicEncrypt(rsaPublicKey, Buffer.from(key)); // потом мы шифруем сообщение этим зашифрованным ключом
 
-                     console.log('key: ' + key);
+        let doEncryptAndSign = function (text) {
+            //todo: один ключ и iv на все письмо.
+            // create sign from text
+            let signature;
+            const signer = crypto.createSign('SHA1');
+            signer.write(text);
+            signer.end();
+            signature = signer.sign(dsaPrivateKey, 'hex');
 
-                     // return ;
-                     let encryptedKey = crypto.publicEncrypt(rsaPublicKey, Buffer.from(key)); // потом мы шифруем сообщение этим зашифрованным ключом
-                     const cipher = crypto.createCipheriv(algorithm, key, iv);
+            const cipher = crypto.createCipheriv(algorithm, key, iv);
+            let encrypted = cipher.update(text, 'utf8', 'hex');
+            encrypted += cipher.final('hex'); // шифруем как hex
 
-                     console.log('encrypting...');
-                     console.log('iv: ' + iv);
-                     console.log('key: ' + key);
+            let encryptedResult = {
+                iv: new Uint8Array(iv),
+                content: encrypted,
+                encryptedKey: encryptedKey,
+                signature: signature,
+            };
 
-                     let encrypted = cipher.update(text, 'utf8', 'hex');
-                     encrypted += cipher.final('hex'); // шифруем как hex
-
-
-                     let encryptedResult = {
-                       iv: new Uint8Array(iv),
-                       content: encrypted,
-                       encryptedKey: encryptedKey,
-                       signature: signature,
-                     };
-
-                     return encryptedResult;
-                   };
+            return encryptedResult;
+        };
 
 
-                   email.html = doEncryptAndSign(email.html);
+        email.html = email.html || "";
+        email.attachments = email.attachments || [];
 
-                   // console.log(email.html);
+        let toEncrypt = {html: email.html, attachments: email.attachments};
+        toEncrypt = EJSON.stringify(toEncrypt);
 
-                   // для каждого приложения, шифруем содержимое
-                   for (let i = 0; i < email.attachments.length; i++) {
-                     email.attachments[i].content = doEncryptAndSign(email.attachments[i].content);
-                   }
+        email.html = EJSON.stringify(doEncryptAndSign(toEncrypt));
+        email.attachments = [];
 
-                   // а еще sign
+        // console.log(email.html);
 
-                   return email;
-                   // try to decrypt?
+        // для каждого приложения, шифруем содержимое
+
+        // а еще sign
+
+        return email;
+
+    },
+
+    decipherAndVerifyEmail(email, passphrase, rsaPrivateKey, dsaPublicKey) {
+        const algorithm = 'aes-192-cbc';
+
+        //todo см. encrypt
+        email.html = EJSON.parse(email.html); // потому что нам сразу нужен html.iv, html.encryptedKey
+        let encryptedKey = email.html.encryptedKey;
+        let iv = email.html.iv;
+        const key = crypto.privateDecrypt(rsaPrivateKey, Buffer.from(encryptedKey));
+        let doDecryptAndVerify = function (obj) {
+            const decipher = crypto.createDecipheriv(algorithm, key, iv);
+
+            let decrypted = decipher.update(obj.content, 'hex', 'utf8');
+            decrypted += decipher.final('utf8'); // дешифруем как utf8
+
+            const verify = crypto.createVerify('SHA1');
+            verify.write(decrypted);
+            verify.end();
+            let signature = obj.signature;
+            let verified = verify.verify(dsaPublicKey, signature, 'hex');
+
+            // для изображений false? Наверное, потому что я читаю их как текст
+
+            if (!verified) {
+                throw new Meteor.Error('Verify failed.');
+            }
+
+            console.log('wow, decrypted');
+
+            return decrypted; // string
+        };
 
 
-                 },
+        // email.html =
 
-                 decipherAndVerifyEmail(email, passphrase, rsaPrivateKey, dsaPublicKey) {
-                   const algorithm = 'aes-192-cbc';
-
-                   let doDecryptAndVerify = function (obj) {
-                     const iv = obj.iv; // Initialization vector.
-                     const encryptedKey = obj.encryptedKey;
-
-                     const key = crypto.privateDecrypt(rsaPrivateKey, Buffer.from(encryptedKey));
-
-                     const decipher = crypto.createDecipheriv(algorithm, key, iv);
-
-                     let decrypted = decipher.update(obj.content, 'hex', 'utf8');
-                     decrypted += decipher.final('utf8'); // дешифруем как utf8
-
-                     const verify = crypto.createVerify('SHA1');
-                     verify.write(decrypted);
-                     verify.end();
-                     let signature = obj.signature;
-                     let verified = verify.verify(dsaPublicKey, signature, 'hex');
-
-                     // для изображений false? Наверное, потому что я читаю их как текст
-
-                     if (!verified) {
-                       throw new Meteor.Error('Verify failed.');
-                     }
-
-                     console.log('wow, decrypted');
-
-                     return decrypted; // string
-                   };
+        let decrypted;
+        try {
+          decrypted = doDecryptAndVerify(email.html);
+          decrypted = EJSON.parse(decrypted);
+        }catch (e) {
+          throw new Meteor.Error('email corrupt or not encrypted');
+        }
+        // для каждого приложения, дешифруем содержимое
 
 
-                   email.html = doDecryptAndVerify(email.html);
+        email.html = decrypted.html;
+        email.attachments = decrypted.attachments;
 
-                   // для каждого приложения, дешифруем содержимое
+        return email;
 
-                   function strToUint8Array (str) {
-                     return new TextEncoder().encode(str); // supports only utf8
-                   }
+    },
 
-                   for (let i = 0; i < email.attachments.length; i++) {
-                     email.attachments[i].content = strToUint8Array(doDecryptAndVerify(email.attachments[i].content));
-                   }
+    generateKeys() {
+        // синхронно. Надо сделать async, ибо долго
+        let rsa = Meteor.call('generateRsaKeyPair');
+        let dsa = Meteor.call('generateDsaKeyPair');
 
-                   return email;
+        return {
+            rsa: rsa,
+            dsa: dsa,
+        }
+    },
 
-                 },
+    generateRsaKeyPair() {
+        const {privateKey, publicKey} = crypto.generateKeyPairSync('rsa', {
+            modulusLength: 2048,
+            publicKeyEncoding: {
+                type: 'spki',
+                format: 'pem',
+            },
+            privateKeyEncoding: {
+                type: 'pkcs8',
+                format: 'pem',
+            },
+        });
 
-                 generateKeys() {
-                   // синхронно. Надо сделать async, ибо долго
-                   let rsa = Meteor.call('generateRsaKeyPair');
-                   let dsa = Meteor.call('generateDsaKeyPair');
+        // console.log(privateKey, publicKey);
 
-                   return {
-                     rsa: rsa,
-                     dsa: dsa,
-                   }
-                 },
+        return {
+            private: privateKey,
+            public: publicKey,
+        }
+    },
+    generateDsaKeyPair() {
+        const {privateKey, publicKey} = crypto.generateKeyPairSync('dsa', {
+            modulusLength: 2048,
+            publicKeyEncoding: {
+                type: 'spki',
+                format: 'pem',
+            },
+            privateKeyEncoding: {
+                type: 'pkcs8',
+                format: 'pem',
+            },
+        });
 
-                 generateRsaKeyPair() {
-                   const {privateKey, publicKey} = crypto.generateKeyPairSync('rsa', {
-                     modulusLength: 2048,
-                     publicKeyEncoding: {
-                       type: 'spki',
-                       format: 'pem',
-                     },
-                     privateKeyEncoding: {
-                       type: 'pkcs8',
-                       format: 'pem',
-                     },
-                   });
+        // console.log(privateKey, publicKey);
 
-                   // console.log(privateKey, publicKey);
+        return {
+            private: privateKey,
+            public: publicKey,
+        }
+    },
 
-                   return {
-                     private: privateKey,
-                     public: publicKey,
-                   }
-                 },
-                 generateDsaKeyPair() {
-                   const {privateKey, publicKey} = crypto.generateKeyPairSync('dsa', {
-                     modulusLength: 2048,
-                     publicKeyEncoding: {
-                       type: 'spki',
-                       format: 'pem',
-                     },
-                     privateKeyEncoding: {
-                       type: 'pkcs8',
-                       format: 'pem',
-                     },
-                   });
-
-                   // console.log(privateKey, publicKey);
-
-                   return {
-                     private: privateKey,
-                     public: publicKey,
-                   }
-                 },
-
-               });
+});
