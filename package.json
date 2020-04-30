@@ -23,7 +23,7 @@
     "gm": "^1.23.1",
     "imap": "^0.8.19",
     "imap-simple": "^4.3.0",
-    "jquery": "^2.2.4",
+    "jquery": "^3.5.0",
     "jquery.inputmask": "^3.3.4",
     "jszip": "^3.2.2",
     "mailparser": "^2.7.7",
